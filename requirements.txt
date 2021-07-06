@@ -1,0 +1,7 @@
+streamlit
+requests
+watchdog
+
+isort
+black
+flake8

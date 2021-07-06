@@ -1,0 +1,16 @@
+# Git will ignore (not track) the following files
+
+# IDE config files
+.idea/
+
+# Virtual environment files
+venv/
+
+# Mac-OS stuff (idk what they are)
+.DS_Store
+
+# Python interpreter bytecode
+__pycache__/
+
+# Personal .env file
+**/.env
