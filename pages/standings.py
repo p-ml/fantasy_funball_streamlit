@@ -7,7 +7,7 @@ import streamlit as st
 
 
 def app():
-    st.title("Demo Page")
+    st.title("Standings")
 
     fantasy_funball_url = os.environ.get("FANTASY_FUNBALL_URL")
     funballers = requests.get(f"{fantasy_funball_url}funballer/")
@@ -29,7 +29,3 @@ def app():
             }
         )
     )
-
-    form = st.form(key="my_form")
-    text = form.text_input(label="Enter some text")
-    submit_button = form.form_submit_button(label="Submit")
