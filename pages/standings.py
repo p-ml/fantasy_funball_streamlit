@@ -6,7 +6,7 @@ import requests
 import streamlit as st
 
 
-def app():
+def standings_app():
     st.title("Standings")
 
     fantasy_funball_url = os.environ.get("FANTASY_FUNBALL_URL")

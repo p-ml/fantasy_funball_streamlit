@@ -1,6 +1,7 @@
 streamlit
 requests
 watchdog
+djangorestframework
 
 isort
 black
