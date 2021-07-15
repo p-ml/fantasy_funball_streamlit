@@ -8,8 +8,8 @@ import streamlit as st
 
 
 def gameweeks_app():
-    st.title("Gameweeks")
-    gameweek_no = st.text_input("Gameweek Number:", 1)
+    st.subheader("Gameweeks")
+    gameweek_no = st.number_input("Gameweek Number:", 1)
 
     fantasy_funball_url = os.environ.get("FANTASY_FUNBALL_URL")
     gameweek = requests.get(f"{fantasy_funball_url}gameweek/{gameweek_no}")

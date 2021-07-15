@@ -7,9 +7,11 @@ import requests
 import streamlit as st
 from rest_framework import status
 
+from utilities.team_names import get_team_names
+
 
 def choices_app():
-    st.title("View Choices")
+    st.subheader("View Choices")
 
     retrieve_choices_form = st.form(key="retrieve_choices")
     funballer_name = retrieve_choices_form.text_input(
@@ -46,13 +48,13 @@ def choices_app():
     )
 
     st.title("")  # Used as divider
-    st.title("Submit Choices")
+    st.subheader("Submit Choices")
 
     with st.form(key="submit_choices"):
         cols = st.beta_columns(4)
         funballer_name = cols[0].text_input("Funballer Name:")
-        gameweek_no = cols[1].text_input("Gameweek No:")
-        team_choice = cols[2].text_input("Team Choice:")
+        gameweek_no = cols[1].number_input("Gameweek No:", 1)
+        team_choice = cols[2].selectbox(label="Team Name:", options=get_team_names())
         player_choice = cols[3].text_input("Player Choice:")
 
         submit_choices = st.form_submit_button("Submit Choices")
