@@ -17,8 +17,8 @@ def gameweeks_app():
         gameweek_json = json.loads(gameweek.text)
 
         game_id = [x["id"] for x in gameweek_json]
-        game_home_team = [x["home_team"] for x in gameweek_json]
-        game_away_team = [x["away_team"] for x in gameweek_json]
+        game_home_team = [x["home_team__team_name"] for x in gameweek_json]
+        game_away_team = [x["away_team__team_name"] for x in gameweek_json]
         game_kickoff = [x["kickoff"] for x in gameweek_json]
         game_date = [x["gameday__date"] for x in gameweek_json]
 
