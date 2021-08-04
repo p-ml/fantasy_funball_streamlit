@@ -84,4 +84,6 @@ def choices_app():
             status.HTTP_404_NOT_FOUND,
             status.HTTP_500_INTERNAL_SERVER_ERROR,
         }:
-            st.error("Please check inputs and try again")
+            print(submit_choices_request.text)
+            error_message = json.loads(submit_choices_request.text)["detail"]
+            st.error(f"{error_message}")
