@@ -1,8 +1,10 @@
 import json
 import os
+from datetime import datetime
 from json import JSONDecodeError
 
 import pandas as pd
+import pytz
 import requests
 import streamlit as st
 
@@ -16,10 +18,18 @@ def gameweeks_app():
     try:
         gameweek_json = json.loads(gameweek.text)
 
-        game_id = [x["id"] for x in gameweek_json]
         game_home_team = [x["home_team__team_name"] for x in gameweek_json]
         game_away_team = [x["away_team__team_name"] for x in gameweek_json]
-        game_kickoff = [x["kickoff"] for x in gameweek_json]
+
+        # Convert each kickoff time to BST
+        bst = pytz.timezone("Europe/London")
+        game_kickoff = [
+            datetime.strftime(
+                bst.fromutc(datetime.strptime(x["kickoff"], "%Y-%m-%d %H:%M:%S")),
+                "%H:%M",
+            )
+            for x in gameweek_json
+        ]
         game_date = [x["gameday__date"] for x in gameweek_json]
 
     except (JSONDecodeError, TypeError):
@@ -30,7 +40,6 @@ def gameweeks_app():
     st.write(
         pd.DataFrame(
             {
-                "Game ID": game_id,
                 "Home Team": game_home_team,
                 "Away Team": game_away_team,
                 "Kickoff": game_kickoff,
