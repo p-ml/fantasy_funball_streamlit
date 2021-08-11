@@ -10,7 +10,7 @@ FANTASY_FUNBALL_URL = os.environ.get("FANTASY_FUNBALL_URL")
 
 def _update_standings():
     """Wrapper to make update_standings request callable"""
-    requests.get(f"{FANTASY_FUNBALL_URL}/update_standings/"),
+    requests.get(f"{FANTASY_FUNBALL_URL}update_database/"),
 
 
 def standings_app():
