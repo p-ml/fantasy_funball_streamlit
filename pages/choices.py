@@ -55,11 +55,16 @@ def choices_app():
     player_names = [player["name"] for player in player_names_json]
 
     with st.form(key="submit_choices"):
-        cols = st.beta_columns(4)
-        pin = cols[0].text_input("Funballer Pin:")
-        gameweek_no = cols[1].number_input("Gameweek No:", 1)
-        team_choice = cols[2].selectbox(label="Team Name:", options=get_team_names())
-        player_choice = cols[3].selectbox(label="Player Choice:", options=player_names)
+        cols_top = st.beta_columns(2)
+        pin = cols_top[0].text_input("Funballer Pin:")
+        gameweek_no = cols_top[1].number_input("Gameweek No:", 1)
+        cols_bottom = st.beta_columns(2)
+        team_choice = cols_bottom[0].selectbox(
+            label="Team Choice:", options=get_team_names()
+        )
+        player_choice = cols_bottom[1].selectbox(
+            label="Player Choice:", options=player_names
+        )
 
         submit_choices = st.form_submit_button("Submit Choices")
 
