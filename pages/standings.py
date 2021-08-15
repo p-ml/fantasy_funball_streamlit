@@ -25,16 +25,16 @@ def standings_app():
     funballer_points = [x["points"] for x in funballers_text]
 
     st.write("Funball Standings:")
-    st.write(
-        pd.DataFrame(
-            {
-                "Name": funballer_names,
-                "Team Points": funballer_team_points,
-                "Player Points": funballer_player_points,
-                "Total Points": funballer_points,
-            }
-        )
-    )
+    standings_dataframe = pd.DataFrame(
+        {
+            "Name": funballer_names,
+            "Team Points": funballer_team_points,
+            "Player Points": funballer_player_points,
+            "Total Points": funballer_points,
+        }
+    ).sort_values(by="Total Points", ascending=False)
+
+    st.write(standings_dataframe)
 
     update_standings_button = st.button(
         label="Update Standings",
