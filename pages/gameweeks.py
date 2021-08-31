@@ -8,10 +8,14 @@ import pytz
 import requests
 import streamlit as st
 
+from utilities.helpers import determine_gameweek_no
+
 
 def gameweeks_app():
     st.subheader("Gameweeks")
-    gameweek_no = st.number_input("Gameweek Number:", 1)
+
+    default_gameweek_no = determine_gameweek_no()
+    gameweek_no = st.number_input("Gameweek Number:", default_gameweek_no)
 
     fantasy_funball_url = os.environ.get("FANTASY_FUNBALL_URL")
     gameweek = requests.get(f"{fantasy_funball_url}gameweek/{gameweek_no}")
