@@ -14,8 +14,14 @@ def _update_standings():
 
 
 def standings_app():
-    st.subheader("Standings")
+    st.subheader("Weekly Summary")
+    summary = requests.get(f"{FANTASY_FUNBALL_URL}gameweek/summary/")
+    summary_text = json.loads(summary.text)
+    st.markdown(summary_text["text"])
 
+    st.title("")  # Used as divider
+
+    st.subheader("Standings")
     funballers = requests.get(f"{FANTASY_FUNBALL_URL}funballer/")
     funballers_text = json.loads(funballers.text)
 
