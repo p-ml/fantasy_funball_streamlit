@@ -50,9 +50,9 @@ def choices_app():
     st.title("")  # Used as divider
     st.subheader("Submit Choices")
 
-    raw_player_names = requests.get(f"{fantasy_funball_url}players/")
-    player_names_json = json.loads(raw_player_names.text)
-    player_names = [player["name"] for player in player_names_json]
+    raw_player_data = requests.get(f"{fantasy_funball_url}players/")
+    player_data_json = json.loads(raw_player_data.text)
+    player_names = [player["name"] for player in player_data_json]
 
     with st.form(key="submit_choices"):
         cols_top = st.beta_columns(2)
@@ -62,8 +62,13 @@ def choices_app():
         team_choice = cols_bottom[0].selectbox(
             label="Team Choice:", options=get_team_names()
         )
-        player_choice = cols_bottom[1].selectbox(
+        player_choice_name = cols_bottom[1].selectbox(
             label="Player Choice:", options=player_names
+        )
+        player_choice_id = next(
+            player["id"]
+            for player in player_data_json
+            if player_choice_name == player["name"]
         )
 
         submit_choices = st.form_submit_button("Submit Choices")
@@ -72,7 +77,7 @@ def choices_app():
         post_payload = {
             "gameweek_no": gameweek_no,
             "team_choice": team_choice,
-            "player_choice": player_choice,
+            "player_choice": player_choice_id,
         }
 
         submit_choices_request = requests.post(
