@@ -8,7 +8,7 @@ import pytz
 import requests
 import streamlit as st
 
-from utilities.helpers import determine_gameweek_no
+from utilities.helpers import determine_gameweek_no, get_gameweek_deadline
 
 
 def gameweeks_app():
@@ -16,9 +16,11 @@ def gameweeks_app():
 
     default_gameweek_no = determine_gameweek_no()
     gameweek_no = st.number_input("Gameweek Number:", default_gameweek_no)
+    gameweek_deadline = get_gameweek_deadline(gameweek_no=gameweek_no)
 
     fantasy_funball_url = os.environ.get("FANTASY_FUNBALL_URL")
     gameweek = requests.get(f"{fantasy_funball_url}gameweek/{gameweek_no}")
+
     try:
         gameweek_json = json.loads(gameweek.text)
 
@@ -51,3 +53,5 @@ def gameweeks_app():
             }
         )
     )
+
+    st.markdown(f"**Gameweek {gameweek_no} Deadline:** {gameweek_deadline}")

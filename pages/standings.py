@@ -5,6 +5,8 @@ import pandas as pd
 import requests
 import streamlit as st
 
+from utilities.helpers import determine_gameweek_no, get_gameweek_deadline
+
 FANTASY_FUNBALL_URL = os.environ.get("FANTASY_FUNBALL_URL")
 
 
@@ -14,12 +16,21 @@ def _update_standings():
 
 
 def standings_app():
+    gameweek_no = determine_gameweek_no()
+    gameweek_deadline = get_gameweek_deadline(gameweek_no=gameweek_no)
+    st.markdown(
+        f"**Current Gameweek:** {gameweek_no}  \n"
+        f"**Gameweek {gameweek_no} Deadline:** {gameweek_deadline}"
+    )
+
+    st.subheader("")  # Used as divider
+
     st.subheader("Weekly Summary")
     summary = requests.get(f"{FANTASY_FUNBALL_URL}gameweek/summary/")
     summary_text = json.loads(summary.text)
     st.markdown(summary_text["text"])
 
-    st.title("")  # Used as divider
+    st.subheader("")  # Used as divider
 
     st.subheader("Standings")
     funballers = requests.get(f"{FANTASY_FUNBALL_URL}funballer/")
@@ -30,7 +41,6 @@ def standings_app():
     funballer_player_points = [x["player_points"] for x in funballers_text]
     funballer_points = [x["points"] for x in funballers_text]
 
-    st.write("Funball Standings:")
     standings_dataframe = pd.DataFrame(
         {
             "Name": funballer_names,
