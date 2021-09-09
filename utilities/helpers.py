@@ -40,8 +40,7 @@ def determine_gameweek_no() -> int:
 def get_gameweek_deadline(gameweek_no: int) -> str:
     """Gets the deadline for a specific gameweek"""
     # Retrieve list of gameweek objects, sorted by deadline
-    # fantasy_funball_url = os.environ.get("FANTASY_FUNBALL_URL")
-    fantasy_funball_url = "http://localhost:8001/fantasy_funball/"
+    fantasy_funball_url = os.environ.get("FANTASY_FUNBALL_URL")
 
     gameweek_info = requests.get(f"{fantasy_funball_url}gameweek/all/")
     gameweek_json = json.loads(gameweek_info.text)
