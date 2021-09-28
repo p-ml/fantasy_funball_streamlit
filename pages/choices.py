@@ -100,7 +100,7 @@ def choices_app():
             gameweek_data = [
                 x
                 for x in gameweek_json
-                if x["gameweek_id__gameweek_no"] in range(1, current_gameweek_no - 1)
+                if x["gameweek_id__gameweek_no"] in range(1, current_gameweek_no)
             ]
         else:
             gameweek_data = gameweek_json
