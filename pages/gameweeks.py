@@ -15,7 +15,9 @@ def gameweeks_app():
     st.subheader("Gameweeks")
 
     default_gameweek_no = determine_gameweek_no()
-    gameweek_no = st.number_input("Gameweek Number:", default_gameweek_no)
+    gameweek_no = st.number_input(
+        "Gameweek Number:", min_value=1, value=default_gameweek_no, max_value=38
+    )
     gameweek_deadline = get_gameweek_deadline(gameweek_no=gameweek_no)
 
     fantasy_funball_url = os.environ.get("FANTASY_FUNBALL_URL")
