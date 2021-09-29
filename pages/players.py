@@ -25,6 +25,11 @@ def players_app():
     goals = [x["goals"] for x in players_text]
     assists = [x["assists"] for x in players_text]
 
+    # Sort players by goals scored
+    player_data = zip(goals, assists, player_name)
+    player_data_sorted = sorted(player_data, reverse=True)
+    goals, assists, player_name = map(list, zip(*player_data_sorted))
+
     st.write(f"{team_name} Players:")
     st.write(
         pd.DataFrame(
