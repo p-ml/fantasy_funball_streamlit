@@ -1,6 +1,7 @@
 import json
 import os
 from json import JSONDecodeError
+from typing import List
 
 import pandas as pd
 import requests
@@ -9,6 +10,32 @@ from rest_framework import status
 
 from utilities.helpers import determine_gameweek_no
 from utilities.team_names import get_team_names
+
+
+class DataframeStyler:
+    def __init__(self, winning_teams: List, winning_players: List):
+        self.winning_teams = winning_teams
+        self.winning_players = winning_players
+
+    def point_awarded_background_team(self, s):
+        green = "background-color: green"
+        red = "background-color: red"
+
+        if s in self.winning_teams:
+            return green
+
+        else:
+            return red
+
+    def point_awarded_background_player(self, s):
+        green = "background-color: green"
+        red = "background-color: red"
+
+        if s in self.winning_players:
+            return green
+
+        else:
+            return red
 
 
 def get_funballer_name_from_pin(funballer_pin: str):
@@ -66,25 +93,29 @@ def get_funballer_name_from_pin(funballer_pin: str):
 
 
 def choices_app():
-    st.subheader("Login")
-    login_form = st.form(key="login")
-    funballer_pin = login_form.text_input("Funballer Pin:")
-    login_bool = login_form.form_submit_button("Login")
-
-    if login_bool:
-        get_funballer_name_from_pin(funballer_pin=funballer_pin)
-
-    st.title("")  # Used as divider
-
     st.subheader("View Choices")
-    retrieve_choices_form = st.form(key="retrieve_choices")
-    funballer_name = retrieve_choices_form.text_input(
-        "Funballer Name:", "Patrick"
-    ).capitalize()
-    retrieve_choices_form.form_submit_button("Retrieve Funballer Choices")
+
+    with st.form(key="retrieve_choices"):
+        cols = st.beta_columns(2)
+        funballer_name = (
+            cols[0]
+            .text_input(
+                "Funballer Name:",
+                "Patrick",
+            )
+            .capitalize()
+        )
+        funballer_pin = cols[1].text_input("Funballer Pin:")
+        retrieve_choices_bool = st.form_submit_button("Retrieve Funballer Choices")
+        st.write("Your pin is required to view your future choices.")
+
+    if retrieve_choices_bool:
+        try:
+            get_funballer_name_from_pin(funballer_pin=funballer_pin)
+        except StopIteration:
+            pass
 
     current_gameweek_no = determine_gameweek_no()
-
     fantasy_funball_url = os.environ.get("FANTASY_FUNBALL_URL")
     choices = requests.get(f"{fantasy_funball_url}funballer/choices/{funballer_name}")
 
@@ -100,7 +131,7 @@ def choices_app():
             gameweek_data = [
                 x
                 for x in gameweek_json
-                if x["gameweek_id__gameweek_no"] in range(1, current_gameweek_no)
+                if x["gameweek_id__gameweek_no"] in range(1, current_gameweek_no - 1)
             ]
         else:
             gameweek_data = gameweek_json
@@ -111,20 +142,66 @@ def choices_app():
             f"{x['player_choice__first_name']} {x['player_choice__surname']}"
             for x in gameweek_data
         ]
+        player_point_awarded = [x["player_point_awarded"] for x in gameweek_data]
+        team_point_awarded = [x["team_point_awarded"] for x in gameweek_data]
 
     except (JSONDecodeError, TypeError):
         st.error("Please enter a valid funballer name")
         st.stop()
 
     st.write(f"{funballer_name}'s Choices:")
-    st.write(
-        pd.DataFrame(
-            {
-                "Funballer Name": funballer_name,
-                "Gameweek Number": gameweek_no,
-                "Team Choice": team_choice,
-                "Player Choice": player_choice,
-            }
+
+    team_result = [
+        {
+            "team": team,
+            "team_point_awarded": team_processed,
+        }
+        for team, team_processed in zip(team_choice, team_point_awarded)
+    ]
+
+    player_result = [
+        {
+            "player": player,
+            "player_point_awarded": player_processed,
+        }
+        for player, player_processed in zip(player_choice, player_point_awarded)
+    ]
+
+    team_point_awarded = [
+        result["team"] for result in team_result if result["team_point_awarded"] is True
+    ]
+
+    player_point_awarded = [
+        result["player"]
+        for result in player_result
+        if result["player_point_awarded"] is True
+    ]
+
+    df_styler = DataframeStyler(
+        winning_teams=team_point_awarded,
+        winning_players=player_point_awarded,
+    )
+
+    choices_dataframe = pd.DataFrame(
+        {
+            "Funballer Name": funballer_name,
+            "Gameweek Number": gameweek_no,
+            "Team Choice": team_choice,
+            "Player Choice": player_choice,
+        }
+    )
+
+    choices_dataframe = choices_dataframe.set_index("Gameweek Number", drop=False)
+
+    s = choices_dataframe.style.applymap(
+        df_styler.point_awarded_background_player,
+        subset=["Player Choice"],
+    )
+
+    st.dataframe(
+        s.applymap(
+            df_styler.point_awarded_background_team,
+            subset=["Team Choice"],
         )
     )
 
