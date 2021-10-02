@@ -96,7 +96,7 @@ def choices_app():
     st.subheader("View Choices")
 
     with st.form(key="retrieve_choices"):
-        cols = st.beta_columns(2)
+        cols = st.columns(2)
         funballer_name = (
             cols[0]
             .text_input(
@@ -213,10 +213,10 @@ def choices_app():
     player_names = [player["name"] for player in player_data_json]
 
     with st.form(key="submit_choices"):
-        cols_top = st.beta_columns(2)
+        cols_top = st.columns(2)
         pin = cols_top[0].text_input("Funballer Pin:")
         gameweek_no = cols_top[1].number_input("Gameweek No:", 1)
-        cols_bottom = st.beta_columns(2)
+        cols_bottom = st.columns(2)
         team_choice = cols_bottom[0].selectbox(
             label="Team Choice:", options=get_team_names()
         )
