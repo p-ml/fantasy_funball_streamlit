@@ -8,7 +8,10 @@ import requests
 import streamlit as st
 from rest_framework import status
 
-from utilities.helpers import determine_gameweek_no
+from utilities.helpers import (
+    determine_gameweek_no,
+    has_current_gameweek_deadline_passed,
+)
 from utilities.team_names import get_team_names
 
 
@@ -115,7 +118,11 @@ def choices_app():
         except StopIteration:
             pass
 
-    current_gameweek_no = determine_gameweek_no()
+    gameweek_no_limit = determine_gameweek_no()
+    current_gameweek_deadline_passed = has_current_gameweek_deadline_passed()
+    if not current_gameweek_deadline_passed:
+        gameweek_no_limit -= 1
+
     fantasy_funball_url = os.environ.get("FANTASY_FUNBALL_URL")
     choices = requests.get(f"{fantasy_funball_url}funballer/choices/{funballer_name}")
 
@@ -131,7 +138,7 @@ def choices_app():
             gameweek_data = [
                 x
                 for x in gameweek_json
-                if x["gameweek_id__gameweek_no"] in range(1, current_gameweek_no - 1)
+                if x["gameweek_id__gameweek_no"] in range(1, gameweek_no_limit)
             ]
         else:
             gameweek_data = gameweek_json

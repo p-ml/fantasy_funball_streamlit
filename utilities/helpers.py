@@ -31,9 +31,6 @@ def determine_gameweek_no() -> int:
         if current_datetime > deadline_datetime_aware:
             gameweek_no = gameweek["gameweek_no"]
 
-    # Get upcoming gameweek
-    gameweek_no += 1
-
     return gameweek_no
 
 
@@ -67,5 +64,26 @@ def get_gameweek_deadline(gameweek_no: int) -> str:
     return gameweek_deadline
 
 
+def has_current_gameweek_deadline_passed():
+    gameweek_no = determine_gameweek_no()
+    current_gameweek_deadline = get_gameweek_deadline(gameweek_no=gameweek_no)
+
+    # Get current datetime
+    current_datetime_tz_unaware = datetime.now()
+    utc = pytz.timezone("UTC")
+    current_datetime = utc.localize(current_datetime_tz_unaware)
+
+    gameweek_deadline = datetime.strptime(
+        current_gameweek_deadline,
+        "%a %d %B %Y @ %H:%M:%S",
+    )
+    gameweek_deadline_datetime = utc.localize(gameweek_deadline)
+
+    if current_datetime > gameweek_deadline_datetime:
+        return True
+
+    return False
+
+
 if __name__ == "__main__":
-    get_gameweek_deadline(gameweek_no=4)
+    has_current_gameweek_deadline_passed()

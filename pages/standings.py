@@ -5,7 +5,11 @@ import pandas as pd
 import requests
 import streamlit as st
 
-from utilities.helpers import determine_gameweek_no, get_gameweek_deadline
+from utilities.helpers import (
+    determine_gameweek_no,
+    get_gameweek_deadline,
+    has_current_gameweek_deadline_passed,
+)
 
 FANTASY_FUNBALL_URL = os.environ.get("FANTASY_FUNBALL_URL")
 
@@ -17,7 +21,13 @@ def _update_standings():
 
 def standings_app():
     gameweek_no = determine_gameweek_no()
+
+    gameweek_deadline_passed = has_current_gameweek_deadline_passed()
+    if gameweek_deadline_passed:
+        gameweek_no += 1
+
     gameweek_deadline = get_gameweek_deadline(gameweek_no=gameweek_no)
+
     st.markdown(
         f"**Current Gameweek:** {gameweek_no}  \n"
         f"**Gameweek {gameweek_no} Deadline:** {gameweek_deadline}"
