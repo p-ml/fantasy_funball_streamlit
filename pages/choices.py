@@ -120,8 +120,8 @@ def choices_app():
 
     gameweek_no_limit = determine_gameweek_no()
     current_gameweek_deadline_passed = has_current_gameweek_deadline_passed()
-    if not current_gameweek_deadline_passed:
-        gameweek_no_limit -= 1
+    if current_gameweek_deadline_passed:
+        gameweek_no_limit += 1
 
     fantasy_funball_url = os.environ.get("FANTASY_FUNBALL_URL")
     choices = requests.get(f"{fantasy_funball_url}funballer/choices/{funballer_name}")
