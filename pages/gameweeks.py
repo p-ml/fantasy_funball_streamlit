@@ -8,13 +8,21 @@ import pytz
 import requests
 import streamlit as st
 
-from utilities.helpers import determine_gameweek_no, get_gameweek_deadline
+from utilities.helpers import (
+    determine_gameweek_no,
+    get_gameweek_deadline,
+    has_current_gameweek_deadline_passed,
+)
 
 
 def gameweeks_app():
     st.subheader("Gameweeks")
 
     default_gameweek_no = determine_gameweek_no()
+    gameweek_deadline_passed = has_current_gameweek_deadline_passed()
+    if gameweek_deadline_passed:
+        default_gameweek_no += 1
+
     gameweek_no = st.number_input(
         "Gameweek Number:", min_value=1, value=default_gameweek_no, max_value=38
     )
