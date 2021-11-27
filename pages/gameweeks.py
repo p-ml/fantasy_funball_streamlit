@@ -29,13 +29,16 @@ def gameweeks_app():
     gameweek_deadline = get_gameweek_deadline(gameweek_no=gameweek_no)
 
     fantasy_funball_url = os.environ.get("FANTASY_FUNBALL_URL")
-    gameweek = requests.get(f"{fantasy_funball_url}gameweek/{gameweek_no}")
+    gameweek_raw = requests.get(f"{fantasy_funball_url}gameweek/{gameweek_no}")
 
     try:
-        gameweek_json = json.loads(gameweek.text)
+        gameweek_json = json.loads(gameweek_raw.text)
 
-        game_home_team = [x["home_team__team_name"] for x in gameweek_json]
-        game_away_team = [x["away_team__team_name"] for x in gameweek_json]
+        # Sort into ascending order by date, can be done via "id"
+        gameweek_sorted = sorted(gameweek_json, key=lambda x: x["id"])
+
+        game_home_team = [x["home_team__team_name"] for x in gameweek_sorted]
+        game_away_team = [x["away_team__team_name"] for x in gameweek_sorted]
 
         # Convert each kickoff time to BST
         bst = pytz.timezone("Europe/London")
@@ -44,24 +47,24 @@ def gameweeks_app():
                 bst.fromutc(datetime.strptime(x["kickoff"], "%Y-%m-%d %H:%M:%S")),
                 "%H:%M",
             )
-            for x in gameweek_json
+            for x in gameweek_sorted
         ]
-        game_date = [x["gameday__date"] for x in gameweek_json]
+        game_date = [x["gameday__date"] for x in gameweek_sorted]
 
     except (JSONDecodeError, TypeError):
         st.error("Please enter a gameweek number, valid range: 1-38")
         st.stop()
 
-    st.write(f"Gameweek {gameweek_no}:")
-    st.write(
-        pd.DataFrame(
-            {
-                "Home Team": game_home_team,
-                "Away Team": game_away_team,
-                "Kickoff": game_kickoff,
-                "Date": game_date,
-            }
-        )
+    gameweeks_dataframe = pd.DataFrame(
+        {
+            "Home Team": game_home_team,
+            "Away Team": game_away_team,
+            "Kickoff": game_kickoff,
+            "Date": game_date,
+        }
     )
+
+    st.write(f"Gameweek {gameweek_no}:")
+    st.write(gameweeks_dataframe)
 
     st.markdown(f"**Gameweek {gameweek_no} Deadline:** {gameweek_deadline}")
