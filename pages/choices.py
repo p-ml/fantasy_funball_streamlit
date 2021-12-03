@@ -219,10 +219,15 @@ def choices_app():
     player_data_json = json.loads(raw_player_data.text)
     player_names = [player["name"] for player in player_data_json]
 
+    gameweek_no = determine_gameweek_no()
+    gameweek_deadline_passed = has_current_gameweek_deadline_passed()
+    if gameweek_deadline_passed:
+        gameweek_no += 1
+
     with st.form(key="submit_choices"):
         cols_top = st.columns(2)
         pin = cols_top[0].text_input("Funballer Pin:")
-        gameweek_no = cols_top[1].number_input("Gameweek No:", 1)
+        gameweek_no = cols_top[1].number_input("Gameweek No:", gameweek_no)
         cols_bottom = st.columns(2)
         team_choice = cols_bottom[0].selectbox(
             label="Team Choice:", options=get_team_names()
