@@ -3,9 +3,9 @@ import os
 from json import JSONDecodeError
 from typing import List
 
-import pandas as pd
 import requests
 import streamlit as st
+from pandas import DataFrame
 from rest_framework import status
 
 from utilities.helpers import (
@@ -16,29 +16,49 @@ from utilities.team_names import get_team_names
 
 
 class DataframeStyler:
-    def __init__(self, winning_teams: List, winning_players: List):
-        self.winning_teams = winning_teams
-        self.winning_players = winning_players
+    def __init__(
+        self,
+        dataframe: DataFrame,
+        winning_teams_colourmap: List[int],
+        winning_players_colourmap: List[int],
+    ):
+        self.styled_dataframe = DataFrame(
+            "", index=dataframe.index, columns=dataframe.columns
+        )
 
-    def point_awarded_background_team(self, s):
-        green = "background-color: green"
-        red = "background-color: red"
+        self.winning_teams_colourmap = winning_teams_colourmap
+        self.winning_players_colourmap = winning_players_colourmap
 
-        if s in self.winning_teams:
-            return green
+        self.win_colour = "background-color: green"
+        self.lose_colour = "background-color: red"
 
-        else:
-            return red
+    def format_winning_teams(self, *_) -> DataFrame:
+        team_choice_column_index = 2
+        for index, value in enumerate(self.winning_teams_colourmap):
+            if value:
+                self.styled_dataframe.iloc[
+                    index, team_choice_column_index
+                ] = self.win_colour
+            else:
+                self.styled_dataframe.iloc[
+                    index, team_choice_column_index
+                ] = self.lose_colour
 
-    def point_awarded_background_player(self, s):
-        green = "background-color: green"
-        red = "background-color: red"
+        return self.styled_dataframe
 
-        if s in self.winning_players:
-            return green
+    def format_winning_players(self, *_) -> DataFrame:
+        player_choice_column_index = 3
+        for index, value in enumerate(self.winning_players_colourmap):
+            if value:
+                self.styled_dataframe.iloc[
+                    index, player_choice_column_index
+                ] = self.win_colour
+            else:
+                self.styled_dataframe.iloc[
+                    index, player_choice_column_index
+                ] = self.lose_colour
 
-        else:
-            return red
+        return self.styled_dataframe
 
 
 def get_funballer_name_from_pin(funballer_pin: str):
@@ -174,22 +194,14 @@ def choices_app():
         for player, player_processed in zip(player_choice, player_point_awarded)
     ]
 
-    team_point_awarded = [
-        result["team"] for result in team_result if result["team_point_awarded"] is True
+    team_point_awarded_colour_mapping = [
+        True if result["team_point_awarded"] else False for result in team_result
+    ]
+    player_point_awarded_colour_mapping = [
+        True if result["player_point_awarded"] else False for result in player_result
     ]
 
-    player_point_awarded = [
-        result["player"]
-        for result in player_result
-        if result["player_point_awarded"] is True
-    ]
-
-    df_styler = DataframeStyler(
-        winning_teams=team_point_awarded,
-        winning_players=player_point_awarded,
-    )
-
-    choices_dataframe = pd.DataFrame(
+    choices_dataframe = DataFrame(
         {
             "Funballer Name": funballer_name,
             "Gameweek Number": gameweek_no,
@@ -197,20 +209,21 @@ def choices_app():
             "Player Choice": player_choice,
         }
     )
-
     choices_dataframe = choices_dataframe.set_index("Gameweek Number", drop=False)
 
-    s = choices_dataframe.style.applymap(
-        df_styler.point_awarded_background_player,
-        subset=["Player Choice"],
+    df_styler = DataframeStyler(
+        dataframe=choices_dataframe,
+        winning_teams_colourmap=team_point_awarded_colour_mapping,
+        winning_players_colourmap=player_point_awarded_colour_mapping,
     )
 
-    st.dataframe(
-        s.applymap(
-            df_styler.point_awarded_background_team,
-            subset=["Team Choice"],
-        )
+    int_styled_dataframe = choices_dataframe.style.apply(
+        df_styler.format_winning_teams, axis=None
     )
+    final_styled_dataframe = int_styled_dataframe.apply(
+        df_styler.format_winning_players, axis=None
+    )
+    st.dataframe(final_styled_dataframe)
 
     st.title("")  # Used as divider
     st.subheader("Submit Choices")
@@ -219,15 +232,10 @@ def choices_app():
     player_data_json = json.loads(raw_player_data.text)
     player_names = [player["name"] for player in player_data_json]
 
-    gameweek_no = determine_gameweek_no()
-    gameweek_deadline_passed = has_current_gameweek_deadline_passed()
-    if gameweek_deadline_passed:
-        gameweek_no += 1
-
     with st.form(key="submit_choices"):
         cols_top = st.columns(2)
         pin = cols_top[0].text_input("Funballer Pin:")
-        gameweek_no = cols_top[1].number_input("Gameweek No:", gameweek_no)
+        gameweek_no = cols_top[1].number_input("Gameweek No:", 1)
         cols_bottom = st.columns(2)
         team_choice = cols_bottom[0].selectbox(
             label="Team Choice:", options=get_team_names()
