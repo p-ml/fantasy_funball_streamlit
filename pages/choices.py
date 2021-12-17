@@ -115,6 +115,24 @@ def get_funballer_name_from_pin(funballer_pin: str):
     st.session_state.funballer_name = funballer_name
 
 
+def remaining_teams_styler(s):
+    green = "background-color: green"
+    orange = "background-color: orange"
+    red = "background-color: red"
+
+    dataframe = s.copy()
+
+    green_mask = dataframe["Remaining Selections"] == 2
+    orange_mask = dataframe["Remaining Selections"] == 1
+    red_mask = dataframe["Remaining Selections"] == 0
+
+    dataframe.loc[green_mask, :] = green
+    dataframe.loc[orange_mask, :] = orange
+    dataframe.loc[red_mask, :] = red
+
+    return dataframe
+
+
 def choices_app():
     st.subheader("View Choices")
 
@@ -274,3 +292,23 @@ def choices_app():
         }:
             error_message = json.loads(submit_choices_request.text)["detail"]
             st.error(f"{error_message}")
+
+    # ------------------ Funballer remaining team picks --------------------
+    st.title("")  # Used as divider
+    st.subheader(f"Remaining Team Picks for {funballer_name}")
+    remaining_valid_teams_raw = requests.get(
+        f"{fantasy_funball_url}funballer/choices/valid_teams/{funballer_name}")
+    remaining_valid_teams = json.loads(remaining_valid_teams_raw.text)
+
+    team_names = [response["team_name"] for response in remaining_valid_teams]
+    remaining_selections = [response["remaining_selections"] for response in remaining_valid_teams]
+    remaining_teams_dataframe = DataFrame(
+        {
+            "Team Name": team_names,
+            "Remaining Selections": remaining_selections,
+        },
+    )
+    styled_remaining_teams_dataframe = remaining_teams_dataframe.style.apply(
+        remaining_teams_styler, axis=None,
+    )
+    st.dataframe(styled_remaining_teams_dataframe)
