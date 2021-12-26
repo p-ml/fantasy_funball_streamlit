@@ -8,11 +8,15 @@ import requests
 
 def determine_gameweek_no() -> int:
     """Uses local time to determine what gameweek number we are in"""
+    # TODO: Can be improved, currently runs through all gameweeks
     # Retrieve list of gameweek objects, sorted by deadline
     fantasy_funball_url = os.environ.get("FANTASY_FUNBALL_URL")
 
     gameweek_info = requests.get(f"{fantasy_funball_url}gameweek/all/")
     gameweek_json = json.loads(gameweek_info.text)
+
+    # Sort by gameweek no.
+    gameweek_json = sorted(gameweek_json, key=lambda x: x["gameweek_no"])
 
     # Get current datetime
     current_datetime_tz_unaware = datetime.now()
@@ -86,4 +90,4 @@ def has_current_gameweek_deadline_passed():
 
 
 if __name__ == "__main__":
-    has_current_gameweek_deadline_passed()
+    determine_gameweek_no()
