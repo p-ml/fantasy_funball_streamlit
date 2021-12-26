@@ -15,9 +15,6 @@ def determine_gameweek_no() -> int:
     gameweek_info = requests.get(f"{fantasy_funball_url}gameweek/all/")
     gameweek_json = json.loads(gameweek_info.text)
 
-    # Sort by gameweek no.
-    gameweek_json = sorted(gameweek_json, key=lambda x: x["gameweek_no"])
-
     # Get current datetime
     current_datetime_tz_unaware = datetime.now()
     utc = pytz.timezone("UTC")
