@@ -5,8 +5,8 @@ description = "Fantasy Funball Streamlit App"
 authors = ["p-ml <34091508+pjjml@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
-streamlit = "*"
+python = "~3.9"
+streamlit = "^1.3.0"
 requests = "*"
 pandas = "==1.2.4"
 watchdog = "*"
