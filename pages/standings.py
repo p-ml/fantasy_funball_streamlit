@@ -21,7 +21,9 @@ def _update_standings():
 def standings_app():
     gameweek_no = determine_gameweek_no()
 
-    gameweek_deadline_passed = has_current_gameweek_deadline_passed()
+    gameweek_deadline_passed = has_current_gameweek_deadline_passed(
+        gameweek_no=gameweek_no
+    )
     if gameweek_deadline_passed:
         gameweek_no += 1
 

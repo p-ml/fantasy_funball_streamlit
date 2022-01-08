@@ -1,3 +1,7 @@
+import streamlit as st
+
+
+@st.experimental_memo
 def get_team_names() -> tuple:
     return (
         "Arsenal",

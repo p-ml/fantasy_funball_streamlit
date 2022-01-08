@@ -4,6 +4,7 @@ from datetime import datetime
 
 import pytz
 import requests
+import streamlit as st
 
 
 def determine_gameweek_no() -> int:
@@ -35,6 +36,7 @@ def determine_gameweek_no() -> int:
     return gameweek_no
 
 
+@st.experimental_memo
 def get_gameweek_deadline(gameweek_no: int) -> str:
     """Gets the deadline for a specific gameweek"""
     # Retrieve list of gameweek objects, sorted by deadline
@@ -65,8 +67,8 @@ def get_gameweek_deadline(gameweek_no: int) -> str:
     return gameweek_deadline
 
 
-def has_current_gameweek_deadline_passed():
-    gameweek_no = determine_gameweek_no()
+@st.experimental_memo
+def has_current_gameweek_deadline_passed(gameweek_no: int) -> bool:
     current_gameweek_deadline = get_gameweek_deadline(gameweek_no=gameweek_no)
 
     # Get current datetime

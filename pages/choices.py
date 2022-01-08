@@ -61,6 +61,7 @@ class DataframeStyler:
         return self.styled_dataframe
 
 
+@st.experimental_memo
 def get_funballer_name_from_pin(funballer_pin: str):
     """Gets funballer name from their pin"""
     funballers = [
@@ -115,6 +116,7 @@ def get_funballer_name_from_pin(funballer_pin: str):
     st.session_state.funballer_name = funballer_name
 
 
+@st.experimental_memo
 def remaining_teams_styler(s):
     green = "background-color: green"
     orange = "background-color: orange"
@@ -157,7 +159,9 @@ def choices_app():
             pass
 
     gameweek_no_limit = determine_gameweek_no()
-    current_gameweek_deadline_passed = has_current_gameweek_deadline_passed()
+    current_gameweek_deadline_passed = has_current_gameweek_deadline_passed(
+        gameweek_no=gameweek_no_limit,
+    )
     if current_gameweek_deadline_passed:
         gameweek_no_limit += 1
 

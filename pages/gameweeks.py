@@ -19,7 +19,9 @@ def gameweeks_app():
     st.subheader("Gameweeks")
 
     default_gameweek_no = determine_gameweek_no()
-    gameweek_deadline_passed = has_current_gameweek_deadline_passed()
+    gameweek_deadline_passed = has_current_gameweek_deadline_passed(
+        gameweek_no=default_gameweek_no,
+    )
     if gameweek_deadline_passed:
         default_gameweek_no += 1
 
