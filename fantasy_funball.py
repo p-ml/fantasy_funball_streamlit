@@ -3,6 +3,12 @@ import streamlit as st
 
 from pages import MultiPage, choices_app, gameweeks_app, players_app, standings_app
 
+st.set_page_config(
+    page_title="Fantasy Funball",
+    page_icon=":soccer",
+    initial_sidebar_state="expanded",
+)
+
 with st.spinner(text="Loading..."):  # Displays this whilst loading
     app = MultiPage()
 
