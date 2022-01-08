@@ -1,9 +1,0 @@
-streamlit
-requests
-pandas==1.2.4
-watchdog
-djangorestframework
-
-isort
-black
-flake8

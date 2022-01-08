@@ -11,7 +11,7 @@ from utilities.helpers import (
     has_current_gameweek_deadline_passed,
 )
 
-FANTASY_FUNBALL_URL = os.environ.get("FANTASY_FUNBALL_URL")
+FANTASY_FUNBALL_URL = st.secrets["FANTASY_FUNBALL_URL"]
 
 
 def _update_standings():
