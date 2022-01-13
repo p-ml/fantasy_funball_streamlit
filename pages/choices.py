@@ -61,7 +61,6 @@ class DataframeStyler:
         return self.styled_dataframe
 
 
-@st.experimental_memo
 def get_funballer_name_from_pin(funballer_pin: str):
     """Gets funballer name from their pin"""
     funballers = [
