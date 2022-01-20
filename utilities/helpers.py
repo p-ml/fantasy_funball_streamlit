@@ -36,7 +36,6 @@ def determine_gameweek_no() -> int:
     return gameweek_no
 
 
-@st.experimental_memo
 def get_gameweek_deadline(gameweek_no: int) -> str:
     """Gets the deadline for a specific gameweek"""
     # Retrieve list of gameweek objects, sorted by deadline
