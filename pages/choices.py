@@ -6,7 +6,6 @@ from typing import List
 import requests
 import streamlit as st
 from pandas import DataFrame
-from rest_framework import status
 
 from utilities.helpers import (
     determine_gameweek_no,
@@ -284,9 +283,9 @@ def choices_app():
             data=post_payload,
         )
 
-        if submit_choices_request.status_code == status.HTTP_201_CREATED:
+        if submit_choices_request.status_code == 201:
             st.markdown("Gameweek selection submitted! :white_check_mark:")
-        elif submit_choices_request.status_code == status.HTTP_200_OK:
+        elif submit_choices_request.status_code == 200:
             st.markdown("Gameweek selection updated! :ballot_box_with_check:️")
         elif submit_choices_request.status_code in {
             status.HTTP_400_BAD_REQUEST,
