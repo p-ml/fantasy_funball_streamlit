@@ -1,5 +1,5 @@
 import json
-import os
+from collections import namedtuple
 from json import JSONDecodeError
 from typing import List
 
@@ -7,11 +7,41 @@ import requests
 import streamlit as st
 from pandas import DataFrame
 
+from utilities.formatting import divider
 from utilities.helpers import (
     determine_gameweek_no,
     has_current_gameweek_deadline_passed,
 )
 from utilities.team_names import get_team_names
+
+FANTASY_FUNBALL_URL = st.secrets["FANTASY_FUNBALL_URL"]
+ChoicesData = namedtuple(
+    "ChoicesData",
+    [
+        "gameweek_no",
+        "team_choice",
+        "player_choice",
+        "player_point_awarded",
+        "team_point_awarded",
+    ],
+)
+ColourMap = namedtuple(
+    "ColourMap",
+    [
+        "team_points",
+        "player_points",
+    ],
+)
+SubmitChoiceData = namedtuple(
+    "SubmitChoiceData",
+    [
+        "pin",
+        "gameweek_no",
+        "team_choice",
+        "player_choice",
+        "submit",
+    ],
+)
 
 
 class DataframeStyler:
@@ -60,8 +90,8 @@ class DataframeStyler:
         return self.styled_dataframe
 
 
-def get_funballer_name_from_pin(funballer_pin: str):
-    """Gets funballer name from their pin"""
+def get_funballer_name_from_pin(funballer_pin: str) -> None:
+    """Gets funballer name from their pin, adds user to streamlit session state"""
     funballers = [
         {
             "first_name": "Patrick",
@@ -115,7 +145,7 @@ def get_funballer_name_from_pin(funballer_pin: str):
 
 
 @st.experimental_memo
-def remaining_teams_styler(s):
+def remaining_teams_styler(s) -> DataFrame:
     green = "background-color: green"
     orange = "background-color: orange"
     red = "background-color: red"
@@ -133,20 +163,23 @@ def remaining_teams_styler(s):
     return dataframe
 
 
-def choices_app():
-    st.subheader("View Choices")
-
+def _display_choices_form() -> str:
+    """
+    Display the choices form, allowing user to select who's choices they want to
+    see
+    """
     with st.form(key="retrieve_choices"):
         cols = st.columns(2)
         funballer_name = (
             cols[0]
             .text_input(
-                "Funballer Name:",
-                "Patrick",
+                label="Funballer Name:",
+                value="Patrick",
             )
             .capitalize()
         )
         funballer_pin = cols[1].text_input("Funballer Pin:")
+
         retrieve_choices_bool = st.form_submit_button("Retrieve Funballer Choices")
         st.write("Your pin is required to view your future choices.")
 
@@ -156,6 +189,14 @@ def choices_app():
         except StopIteration:
             pass
 
+    return funballer_name
+
+
+def _determine_gameweek_no_limit() -> int:
+    """
+    Determines the gameweek number limit, returns the number of the next
+    gameweek if the current gameweek deadline has passed.
+    """
     gameweek_no_limit = determine_gameweek_no()
     current_gameweek_deadline_passed = has_current_gameweek_deadline_passed(
         gameweek_no=gameweek_no_limit,
@@ -163,8 +204,15 @@ def choices_app():
     if current_gameweek_deadline_passed:
         gameweek_no_limit += 1
 
-    fantasy_funball_url = os.environ.get("FANTASY_FUNBALL_URL")
-    choices = requests.get(f"{fantasy_funball_url}funballer/choices/{funballer_name}")
+    return gameweek_no_limit
+
+
+def _retrieve_choices_data(funballer_name: str, gameweek_no_limit: int) -> ChoicesData:
+    """
+    Retrieve choices data from the backend. Only displays all future choices
+    if the requested funballer matches that stored in the streamlit session.
+    """
+    choices = requests.get(f"{FANTASY_FUNBALL_URL}funballer/choices/{funballer_name}")
 
     if funballer_name == st.session_state.get("funballer_name"):
         view_all_choices = True
@@ -173,7 +221,6 @@ def choices_app():
 
     try:
         gameweek_json = json.loads(choices.text)
-
         if not view_all_choices:
             gameweek_data = [
                 x
@@ -192,49 +239,69 @@ def choices_app():
         player_point_awarded = [x["player_point_awarded"] for x in gameweek_data]
         team_point_awarded = [x["team_point_awarded"] for x in gameweek_data]
 
+        choices_data = ChoicesData(
+            gameweek_no=gameweek_no,
+            team_choice=team_choice,
+            player_choice=player_choice,
+            player_point_awarded=player_point_awarded,
+            team_point_awarded=team_point_awarded,
+        )
+
+        return choices_data
+
     except (JSONDecodeError, TypeError):
         st.error("Please enter a valid funballer name")
         st.stop()
 
-    st.write(f"{funballer_name}'s Choices:")
 
-    team_result = [
+def _create_choices_colour_map(choices_data: ChoicesData) -> ColourMap:
+    """
+    Create dataframe colour map for points awarded for team and player choices.
+    """
+    team_result_data = [
         {
-            "team": team,
-            "team_point_awarded": team_processed,
+            "team": team_name,
+            "team_point_awarded": team_point_awarded,
         }
-        for team, team_processed in zip(team_choice, team_point_awarded)
+        for team_name, team_point_awarded in zip(
+            choices_data.team_choice, choices_data.team_point_awarded
+        )
     ]
 
-    player_result = [
+    player_result_data = [
         {
-            "player": player,
-            "player_point_awarded": player_processed,
+            "player": player_name,
+            "player_point_awarded": player_point_awarded,
         }
-        for player, player_processed in zip(player_choice, player_point_awarded)
+        for player_name, player_point_awarded in zip(
+            choices_data.player_choice, choices_data.player_point_awarded
+        )
     ]
 
     team_point_awarded_colour_mapping = [
-        True if result["team_point_awarded"] else False for result in team_result
+        True if result["team_point_awarded"] else False for result in team_result_data
     ]
     player_point_awarded_colour_mapping = [
-        True if result["player_point_awarded"] else False for result in player_result
+        True if result["player_point_awarded"] else False
+        for result in player_result_data
     ]
 
-    choices_dataframe = DataFrame(
-        {
-            "Funballer Name": funballer_name,
-            "Gameweek Number": gameweek_no,
-            "Team Choice": team_choice,
-            "Player Choice": player_choice,
-        }
+    colour_map = ColourMap(
+        team_points=team_point_awarded_colour_mapping,
+        player_points=player_point_awarded_colour_mapping,
     )
-    choices_dataframe = choices_dataframe.set_index("Gameweek Number", drop=False)
 
+    return colour_map
+
+
+def _style_choices_dataframe(
+    choices_dataframe: DataFrame,
+    colour_map: ColourMap,
+) -> DataFrame:
     df_styler = DataframeStyler(
         dataframe=choices_dataframe,
-        winning_teams_colourmap=team_point_awarded_colour_mapping,
-        winning_players_colourmap=player_point_awarded_colour_mapping,
+        winning_teams_colourmap=colour_map.team_points,
+        winning_players_colourmap=colour_map.player_points,
     )
 
     int_styled_dataframe = choices_dataframe.style.apply(
@@ -243,19 +310,64 @@ def choices_app():
     final_styled_dataframe = int_styled_dataframe.apply(
         df_styler.format_winning_players, axis=None
     )
-    st.dataframe(final_styled_dataframe)
 
-    st.title("")  # Used as divider
+    return final_styled_dataframe
+
+
+def _create_choices_dataframe(
+    funballer_name: str,
+    choices_data: ChoicesData,
+) -> DataFrame:
+    """Create the choices dataframe"""
+    st.write(f"{funballer_name}'s Choices:")
+
+    choices_dataframe = DataFrame(
+        {
+            "Funballer Name": funballer_name,
+            "Gameweek Number": choices_data.gameweek_no,
+            "Team Choice": choices_data.team_choice,
+            "Player Choice": choices_data.player_choice,
+        }
+    )
+    indexed_choices_dataframe = choices_dataframe.set_index(
+        "Gameweek Number", drop=False
+    )
+
+    colour_map = _create_choices_colour_map(choices_data=choices_data)
+
+    styled_choices_dataframe = _style_choices_dataframe(
+        choices_dataframe=indexed_choices_dataframe,
+        colour_map=colour_map,
+    )
+
+    return styled_choices_dataframe
+
+
+def _display_choices_dataframe(choices_dataframe: DataFrame) -> None:
+    """Display choices dataframe"""
+    st.dataframe(choices_dataframe)
+    divider()
+
+
+def _retrieve_player_data() -> List:
+    """Retrieve player data from the backend"""
+    raw_player_data = requests.get(f"{FANTASY_FUNBALL_URL}players/")
+    player_data = json.loads(raw_player_data.text)
+
+    return player_data
+
+
+def _create_submit_choices_form(default_gameweek_no: int) -> SubmitChoiceData:
     st.subheader("Submit Choices")
 
-    raw_player_data = requests.get(f"{fantasy_funball_url}players/")
-    player_data_json = json.loads(raw_player_data.text)
-    player_names = [player["name"] for player in player_data_json]
+    player_data = _retrieve_player_data()
+    player_names = [player["name"] for player in player_data]
 
     with st.form(key="submit_choices"):
         cols_top = st.columns(2)
         pin = cols_top[0].text_input("Funballer Pin:")
-        gameweek_no = cols_top[1].number_input("Gameweek No:", gameweek_no_limit)
+        gameweek_no = cols_top[1].number_input("Gameweek No:", default_gameweek_no)
+
         cols_bottom = st.columns(2)
         team_choice = cols_bottom[0].selectbox(
             label="Team Choice:", options=get_team_names()
@@ -265,45 +377,61 @@ def choices_app():
         )
         player_choice_id = next(
             player["id"]
-            for player in player_data_json
+            for player in player_data
             if player_choice_name == player["name"]
         )
 
         submit_choices = st.form_submit_button("Submit Choices")
 
-    if submit_choices:
-        post_payload = {
-            "gameweek_no": gameweek_no,
-            "team_choice": team_choice,
-            "player_choice": player_choice_id,
-        }
-
-        submit_choices_request = requests.post(
-            url=f"{fantasy_funball_url}funballer/choices/submit/{pin}",
-            data=post_payload,
+        submit_choice_data = SubmitChoiceData(
+            pin=pin,
+            gameweek_no=gameweek_no,
+            team_choice=team_choice,
+            player_choice=player_choice_id,
+            submit=submit_choices,
         )
 
-        if submit_choices_request.status_code == 201:
-            st.markdown("Gameweek selection submitted! :white_check_mark:")
-        elif submit_choices_request.status_code == 200:
-            st.markdown("Gameweek selection updated! :ballot_box_with_check:️")
-        elif submit_choices_request.status_code in {
-            status.HTTP_400_BAD_REQUEST,
-            status.HTTP_404_NOT_FOUND,
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
-        }:
-            error_message = json.loads(submit_choices_request.text)["detail"]
-            st.error(f"{error_message}")
+        return submit_choice_data
 
-    # ------------------ Funballer remaining team picks --------------------
-    st.title("")  # Used as divider
+
+def _post_choice(submit_choices_data: SubmitChoiceData) -> None:
+    """Send POST request to backend with submitted choice payload"""
+    post_payload = {
+        "gameweek_no": submit_choices_data.gameweek_no,
+        "team_choice": submit_choices_data.team_choice,
+        "player_choice": submit_choices_data.player_choice,
+    }
+
+    submit_choices_request = requests.post(
+        url=f"{FANTASY_FUNBALL_URL}funballer/choices/submit/{submit_choices_data.pin}",
+        data=post_payload,
+    )
+
+    if submit_choices_request.status_code == 201:
+        st.markdown("Gameweek selection submitted! :white_check_mark:")
+    elif submit_choices_request.status_code == 200:
+        st.markdown("Gameweek selection updated! :ballot_box_with_check:️")
+    elif submit_choices_request.status_code in {400, 404, 500}:
+        error_message = json.loads(submit_choices_request.text)["detail"]
+        st.error(f"{error_message}")
+
+    divider()
+
+
+def _display_funballers_remaining_picks(funballer_name: str) -> None:
+    """Display the remaining available team picks for the requested funballer"""
     st.subheader(f"Remaining Team Picks for {funballer_name}")
+
     remaining_valid_teams_raw = requests.get(
-        f"{fantasy_funball_url}funballer/choices/valid_teams/{funballer_name}")
+        f"{FANTASY_FUNBALL_URL}funballer/choices/valid_teams/{funballer_name}"
+    )
     remaining_valid_teams = json.loads(remaining_valid_teams_raw.text)
 
     team_names = [response["team_name"] for response in remaining_valid_teams]
-    remaining_selections = [response["remaining_selections"] for response in remaining_valid_teams]
+    remaining_selections = [
+        response["remaining_selections"] for response in remaining_valid_teams
+    ]
+
     remaining_teams_dataframe = DataFrame(
         {
             "Team Name": team_names,
@@ -311,6 +439,36 @@ def choices_app():
         },
     )
     styled_remaining_teams_dataframe = remaining_teams_dataframe.style.apply(
-        remaining_teams_styler, axis=None,
+        remaining_teams_styler,
+        axis=None,
     )
     st.dataframe(styled_remaining_teams_dataframe)
+
+
+def choices_app():
+    st.subheader("View Choices")
+
+    funballer_name = _display_choices_form()
+
+    gameweek_no_limit = _determine_gameweek_no_limit()
+
+    choices_data = _retrieve_choices_data(
+        funballer_name=funballer_name,
+        gameweek_no_limit=gameweek_no_limit,
+    )
+
+    choices_dataframe = _create_choices_dataframe(
+        funballer_name=funballer_name,
+        choices_data=choices_data,
+    )
+
+    _display_choices_dataframe(choices_dataframe=choices_dataframe)
+
+    submit_choice_data = _create_submit_choices_form(
+        default_gameweek_no=gameweek_no_limit,
+    )
+
+    if submit_choice_data.submit:
+        _post_choice(submit_choices_data=submit_choice_data)
+
+    _display_funballers_remaining_picks(funballer_name=funballer_name)

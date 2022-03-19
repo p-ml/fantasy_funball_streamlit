@@ -1,7 +1,8 @@
 import json
-import os
+from collections import namedtuple
 from datetime import datetime
 from json import JSONDecodeError
+from typing import Dict, List
 
 import pandas as pd
 import pytz
@@ -14,59 +15,126 @@ from utilities.helpers import (
     has_current_gameweek_deadline_passed,
 )
 
+FANTASY_FUNBALL_URL = st.secrets["FANTASY_FUNBALL_URL"]
+SortedGameweekData = namedtuple(
+    "SortedGameweekData", ["home_teams", "away_teams", "game_dates", "kickoffs"]
+)
 
-def gameweeks_app():
-    st.subheader("Gameweeks")
 
+def _determine_default_gameweek_no() -> int:
+    """
+    Determines default gameweek no. If deadline has passed for current gameweek,
+    the next gameweek no is returned.
+    """
     default_gameweek_no = determine_gameweek_no()
+
     gameweek_deadline_passed = has_current_gameweek_deadline_passed(
         gameweek_no=default_gameweek_no,
     )
+
     if gameweek_deadline_passed:
         default_gameweek_no += 1
 
+    return default_gameweek_no
+
+
+def _display_gameweek_select_box(default_gameweek_no: int) -> int:
+    """
+    Display the gameweek select box, allowing the user to select the desired
+    gameweek no.
+    """
     gameweek_no = st.number_input(
         "Gameweek Number:", min_value=1, value=default_gameweek_no, max_value=38
     )
-    gameweek_deadline = get_gameweek_deadline(gameweek_no=gameweek_no)
 
-    fantasy_funball_url = os.environ.get("FANTASY_FUNBALL_URL")
-    gameweek_raw = requests.get(f"{fantasy_funball_url}gameweek/{gameweek_no}")
+    return gameweek_no
 
-    try:
-        gameweek_json = json.loads(gameweek_raw.text)
 
-        # Sort into ascending order by date, can be done via "id"
-        gameweek_sorted = sorted(gameweek_json, key=lambda x: x["id"])
+def _format_kickoffs(kickoffs: List) -> List:
+    """Format game kickoffs into Y-M-D H:M:S"""
+    bst = pytz.timezone("Europe/London")
 
-        game_home_team = [x["home_team__team_name"] for x in gameweek_sorted]
-        game_away_team = [x["away_team__team_name"] for x in gameweek_sorted]
+    formatted_kickoffs = [
+        datetime.strftime(
+            bst.fromutc(datetime.strptime(kickoff, "%Y-%m-%d %H:%M:%S")),
+            "%H:%M",
+        )
+        for kickoff in kickoffs
+    ]
 
-        # Convert each kickoff time to BST
-        bst = pytz.timezone("Europe/London")
-        game_kickoff = [
-            datetime.strftime(
-                bst.fromutc(datetime.strptime(x["kickoff"], "%Y-%m-%d %H:%M:%S")),
-                "%H:%M",
-            )
-            for x in gameweek_sorted
-        ]
-        game_date = [x["gameday__date"] for x in gameweek_sorted]
+    return formatted_kickoffs
 
-    except (JSONDecodeError, TypeError):
-        st.error("Please enter a gameweek number, valid range: 1-38")
-        st.stop()
 
+def _format_gameweek_data(gameweek_data: Dict) -> SortedGameweekData:
+    """Format gameweek data by sorting by gameweek id"""
+    # Sort into ascending order by date, can be done via "id"
+    gameweek_sorted = sorted(gameweek_data, key=lambda x: x["id"])
+
+    home_teams = [game["home_team__team_name"] for game in gameweek_sorted]
+    away_teams = [game["away_team__team_name"] for game in gameweek_sorted]
+    game_dates = [game["gameday__date"] for game in gameweek_sorted]
+    game_kickoffs = [game["kickoff"] for game in gameweek_sorted]
+
+    formatted_kickoffs = _format_kickoffs(kickoffs=game_kickoffs)
+
+    sorted_gameweek_data = SortedGameweekData(
+        home_teams=home_teams,
+        away_teams=away_teams,
+        game_dates=game_dates,
+        kickoffs=formatted_kickoffs,
+    )
+
+    return sorted_gameweek_data
+
+
+def _retrieve_gameweek_data(gameweek_no: int) -> SortedGameweekData:
+    """Retrieve gameweek data from backend & format it"""
+    gameweek_data_raw = requests.get(f"{FANTASY_FUNBALL_URL}gameweek/{gameweek_no}")
+
+    gameweek_data = json.loads(gameweek_data_raw.text)
+
+    formatted_gameweek_data = _format_gameweek_data(gameweek_data=gameweek_data)
+
+    return formatted_gameweek_data
+
+
+def _display_gameweek_data(
+    gameweek_data: SortedGameweekData,
+    gameweek_no: int,
+) -> None:
+    """Create gameweek dataframe and display it"""
     gameweeks_dataframe = pd.DataFrame(
         {
-            "Home Team": game_home_team,
-            "Away Team": game_away_team,
-            "Kickoff": game_kickoff,
-            "Date": game_date,
+            "Home Team": gameweek_data.home_teams,
+            "Away Team": gameweek_data.away_teams,
+            "Kickoff": gameweek_data.kickoffs,
+            "Date": gameweek_data.game_dates,
         }
     )
 
     st.write(f"Gameweek {gameweek_no}:")
     st.write(gameweeks_dataframe)
+
+
+def gameweeks_app():
+    st.subheader("Gameweeks")
+
+    default_gameweek_no = _determine_default_gameweek_no()
+
+    gameweek_no = _display_gameweek_select_box(default_gameweek_no=default_gameweek_no)
+
+    gameweek_deadline = get_gameweek_deadline(gameweek_no=gameweek_no)
+
+    try:
+        gameweek_data = _retrieve_gameweek_data(gameweek_no=gameweek_no)
+
+        _display_gameweek_data(
+            gameweek_data=gameweek_data,
+            gameweek_no=gameweek_no,
+        )
+
+    except (JSONDecodeError, TypeError):
+        st.error("Please enter a gameweek number, valid range: 1-38")
+        st.stop()
 
     st.markdown(f"**Gameweek {gameweek_no} Deadline:** {gameweek_deadline}")
