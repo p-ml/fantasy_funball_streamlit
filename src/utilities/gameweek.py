@@ -43,9 +43,7 @@ def determine_gameweek_no() -> int:
     gameweek_no = 0  # Season hasn't started yet
     for gameweek in gameweek_data:
         # Convert deadline str to datetime
-        deadline_datetime = datetime.strptime(
-            gameweek["deadline"], "%Y-%m-%dT%H:%M:%SZ"
-        )
+        deadline_datetime = datetime.strptime(gameweek["deadline"], "%Y-%m-%dT%H:%M:%SZ")
         localised_deadline_datetime = _localise_datetime(
             datetime=deadline_datetime,
             timezone="utc",

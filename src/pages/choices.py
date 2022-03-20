@@ -282,8 +282,7 @@ def _create_choices_colour_map(choices_data: ChoicesData) -> ColourMap:
         True if result["team_point_awarded"] else False for result in team_result_data
     ]
     player_point_awarded_colour_mapping = [
-        True if result["player_point_awarded"] else False
-        for result in player_result_data
+        True if result["player_point_awarded"] else False for result in player_result_data
     ]
 
     colour_map = ColourMap(
@@ -329,9 +328,7 @@ def _create_choices_dataframe(
             "Player Choice": choices_data.player_choice,
         }
     )
-    indexed_choices_dataframe = choices_dataframe.set_index(
-        "Gameweek Number", drop=False
-    )
+    indexed_choices_dataframe = choices_dataframe.set_index("Gameweek Number", drop=False)
 
     colour_map = _create_choices_colour_map(choices_data=choices_data)
 
@@ -376,9 +373,7 @@ def _create_submit_choices_form(default_gameweek_no: int) -> SubmitChoiceData:
             label="Player Choice:", options=player_names
         )
         player_choice_id = next(
-            player["id"]
-            for player in player_data
-            if player_choice_name == player["name"]
+            player["id"] for player in player_data if player_choice_name == player["name"]
         )
 
         submit_choices = st.form_submit_button("Submit Choices")
