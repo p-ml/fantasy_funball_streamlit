@@ -6,7 +6,7 @@ import pandas as pd
 import requests
 import streamlit as st
 
-from utilities.team_names import get_team_names
+from src.utilities import get_team_names
 
 FANTASY_FUNBALL_URL = st.secrets["FANTASY_FUNBALL_URL"]
 SortedPlayerData = namedtuple("SortedPlayerData", ["player_names", "goals", "assists"])

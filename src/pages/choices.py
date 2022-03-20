@@ -7,12 +7,12 @@ import requests
 import streamlit as st
 from pandas import DataFrame
 
-from utilities.formatting import divider
-from utilities.helpers import (
+from src.utilities import (
     determine_gameweek_no,
+    divider,
+    get_team_names,
     has_current_gameweek_deadline_passed,
 )
-from utilities.team_names import get_team_names
 
 FANTASY_FUNBALL_URL = st.secrets["FANTASY_FUNBALL_URL"]
 ChoicesData = namedtuple(

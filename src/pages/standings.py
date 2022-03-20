@@ -5,9 +5,9 @@ import pandas as pd
 import requests
 import streamlit as st
 
-from utilities.formatting import divider
-from utilities.helpers import (
+from src.utilities import (
     determine_gameweek_no,
+    divider,
     get_gameweek_deadline,
     has_current_gameweek_deadline_passed,
 )
@@ -60,7 +60,7 @@ def _retrieve_funballer_data() -> Dict:
     return funballer_data
 
 
-def _create_standings_dataframe(funballer_data: Dict) -> pd.Dataframe:
+def _create_standings_dataframe(funballer_data: Dict) -> pd.DataFrame:
     """Creates standings dataframe"""
     standings_dataframe = pd.DataFrame(
         {

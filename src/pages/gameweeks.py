@@ -9,7 +9,7 @@ import pytz
 import requests
 import streamlit as st
 
-from utilities.helpers import (
+from src.utilities import (
     determine_gameweek_no,
     get_gameweek_deadline,
     has_current_gameweek_deadline_passed,

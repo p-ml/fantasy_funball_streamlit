@@ -12,6 +12,7 @@ pandas = "==1.2.4"
 watchdog = "*"
 
 [tool.poetry.dev-dependencies]
+pytest = "*"
 isort = "*"
 black = "*"
 flake8 = "*"

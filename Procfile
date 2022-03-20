@@ -1,1 +1,1 @@
-web: sh setup.sh && streamlit run fantasy_funball.py
+web: sh setup.sh && streamlit run src/fantasy_funball.py
