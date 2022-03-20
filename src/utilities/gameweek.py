@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import datetime
 from typing import Dict
 
@@ -6,7 +7,7 @@ import pytz
 import requests
 import streamlit as st
 
-FANTASY_FUNBALL_URL = st.secrets["FANTASY_FUNBALL_URL"]
+FANTASY_FUNBALL_URL = os.environ.get("FANTASY_FUNBALL_URL")
 
 
 def _localise_datetime(datetime: datetime, timezone: str) -> datetime:

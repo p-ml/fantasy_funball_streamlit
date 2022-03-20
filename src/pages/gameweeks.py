@@ -1,8 +1,9 @@
 import json
+import os
 from collections import namedtuple
 from datetime import datetime
 from json import JSONDecodeError
-from typing import Dict, List
+from typing import List
 
 import pandas as pd
 import pytz
@@ -15,7 +16,7 @@ from src.utilities import (
     has_current_gameweek_deadline_passed,
 )
 
-FANTASY_FUNBALL_URL = st.secrets["FANTASY_FUNBALL_URL"]
+FANTASY_FUNBALL_URL = os.environ.get("FANTASY_FUNBALL_URL")
 SortedGameweekData = namedtuple(
     "SortedGameweekData", ["home_teams", "away_teams", "game_dates", "kickoffs"]
 )
@@ -65,13 +66,15 @@ def _format_kickoffs(kickoffs: List) -> List:
     return formatted_kickoffs
 
 
-def _format_gameweek_data(gameweek_data: Dict) -> SortedGameweekData:
+def _format_gameweek_data(gameweek_data: List) -> SortedGameweekData:
     """Format gameweek data by sorting by gameweek id"""
     # Sort into ascending order by date, can be done via "id"
     gameweek_sorted = sorted(gameweek_data, key=lambda x: x["id"])
 
     home_teams = [game["home_team__team_name"] for game in gameweek_sorted]
     away_teams = [game["away_team__team_name"] for game in gameweek_sorted]
+
+    # TODO: potentially duplicated info between gameday__date and kickoff
     game_dates = [game["gameday__date"] for game in gameweek_sorted]
     game_kickoffs = [game["kickoff"] for game in gameweek_sorted]
 

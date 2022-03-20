@@ -14,3 +14,6 @@ __pycache__/
 
 # Personal .env file
 **/.env
+
+# Streamlit files
+.streamlit/

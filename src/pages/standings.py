@@ -1,5 +1,6 @@
 import json
-from typing import Dict
+import os
+from typing import Dict, List
 
 import pandas as pd
 import requests
@@ -12,7 +13,7 @@ from src.utilities import (
     has_current_gameweek_deadline_passed,
 )
 
-FANTASY_FUNBALL_URL = st.secrets["FANTASY_FUNBALL_URL"]
+FANTASY_FUNBALL_URL = os.environ.get("FANTASY_FUNBALL_URL")
 
 
 def _retrieve_gameweek_summary() -> Dict:
@@ -33,7 +34,7 @@ def _display_gameweek_summary() -> None:
     divider()
 
 
-def _format_funballer_data(funballer_data: Dict) -> Dict:
+def _format_funballer_data(funballer_data: List) -> Dict:
     """Parses and formats the raw funballer data"""
     funballer_names = [x["first_name"] for x in funballer_data]
     funballer_team_points = [x["team_points"] for x in funballer_data]
@@ -51,7 +52,7 @@ def _format_funballer_data(funballer_data: Dict) -> Dict:
 
 
 def _retrieve_funballer_data() -> Dict:
-    """Retrieve funballer data from backend"""
+    """Retrieve all funballer data from backend"""
     funballers = requests.get(f"{FANTASY_FUNBALL_URL}funballer/")
     funballers_text = json.loads(funballers.text)
 

@@ -1,4 +1,5 @@
 import json
+import os
 from collections import namedtuple
 from json import JSONDecodeError
 from typing import List
@@ -14,7 +15,7 @@ from src.utilities import (
     has_current_gameweek_deadline_passed,
 )
 
-FANTASY_FUNBALL_URL = st.secrets["FANTASY_FUNBALL_URL"]
+FANTASY_FUNBALL_URL = os.environ.get("FANTASY_FUNBALL_URL")
 ChoicesData = namedtuple(
     "ChoicesData",
     [
@@ -197,6 +198,7 @@ def _determine_gameweek_no_limit() -> int:
     Determines the gameweek number limit, returns the number of the next
     gameweek if the current gameweek deadline has passed.
     """
+    # TODO: Remove, this is a duplicate of `determine_default_gameweek_no`
     gameweek_no_limit = determine_gameweek_no()
     current_gameweek_deadline_passed = has_current_gameweek_deadline_passed(
         gameweek_no=gameweek_no_limit,
@@ -348,6 +350,7 @@ def _display_choices_dataframe(choices_dataframe: DataFrame) -> None:
 
 def _retrieve_player_data() -> List:
     """Retrieve player data from the backend"""
+    # TODO: similar function in `src.pages.players`
     raw_player_data = requests.get(f"{FANTASY_FUNBALL_URL}players/")
     player_data = json.loads(raw_player_data.text)
 

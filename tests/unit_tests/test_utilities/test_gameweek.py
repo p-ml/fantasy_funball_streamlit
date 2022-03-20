@@ -51,9 +51,7 @@ def test__retrieve_gameweek_data(mock_requests):
     expected_output = [{"gameweek_no": 1, "deadline": "2022-01-01T00:00:00Z"}]
 
     mock_request_response = Mock(object=Response)
-    mock_request_response.text = (
-        '[{"gameweek_no": 1,"deadline":"2022-01-01T00:00:00Z"}]'
-    )
+    mock_request_response.text = '[{"gameweek_no": 1,"deadline":"2022-01-01T00:00:00Z"}]'
     mock_requests.get.return_value = mock_request_response
 
     output = _retrieve_gameweek_data()

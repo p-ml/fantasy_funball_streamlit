@@ -5,6 +5,8 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      FANTASY_FUNBALL_URL: "http://localhost:8080/fantasy_funball/"
 
     steps:
       - uses: actions/checkout@v2

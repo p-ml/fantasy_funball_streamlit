@@ -1,4 +1,5 @@
 import json
+import os
 from collections import namedtuple
 from typing import Dict
 
@@ -8,7 +9,7 @@ import streamlit as st
 
 from src.utilities import get_team_names
 
-FANTASY_FUNBALL_URL = st.secrets["FANTASY_FUNBALL_URL"]
+FANTASY_FUNBALL_URL = os.environ.get("FANTASY_FUNBALL_URL")
 SortedPlayerData = namedtuple("SortedPlayerData", ["player_names", "goals", "assists"])
 
 
