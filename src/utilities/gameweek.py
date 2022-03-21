@@ -5,7 +5,6 @@ from typing import Dict
 
 import pytz
 import requests
-import streamlit as st
 
 FANTASY_FUNBALL_URL = os.environ.get("FANTASY_FUNBALL_URL")
 
