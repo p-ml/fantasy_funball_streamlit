@@ -1,6 +1,6 @@
 import streamlit as st
 
-from pages import MultiPage, choices_app, gameweeks_app, players_app, standings_app
+from src.pages import MultiPage, choices_app, gameweeks_app, players_app, standings_app
 
 st.set_page_config(
     page_title="Fantasy Funball",
