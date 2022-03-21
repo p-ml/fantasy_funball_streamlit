@@ -1,4 +1,3 @@
-from json import JSONDecodeError
 from unittest.mock import Mock, patch
 
 import pytest
@@ -74,7 +73,17 @@ def test__retrieve_choices_data(
 ):
 
     mock_response = Mock(object=Response)
-    mock_response.text = '[{"id":2,"funballer_id":1,"player_choice__first_name":"Hugo","player_choice__surname":"Lloris","team_choice__team_name":"Liverpool","player_has_been_steved":false,"team_has_been_steved":false,"gameweek_id__gameweek_no":1,"team_point_awarded":true,"player_point_awarded":false},{"id":1,"funballer_id":1,"player_choice__first_name":"Harry","player_choice__surname":"Kane","team_choice__team_name":"Spurs","player_has_been_steved":true,"team_has_been_steved":false,"gameweek_id__gameweek_no":2,"team_point_awarded":true,"player_point_awarded":false}]'
+    mock_response.text = (
+        '[{"id":2,"funballer_id":1,"player_choice__first_name":"Hugo",'
+        '"player_choice__surname":"Lloris","team_choice__team_name":'
+        '"Liverpool","player_has_been_steved":false,"team_has_been_steved":false,'
+        '"gameweek_id__gameweek_no":1,"team_point_awarded":true,'
+        '"player_point_awarded":false},{"id":1,"funballer_id":1,'
+        '"player_choice__first_name":"Harry","player_choice__surname":"Kane",'
+        '"team_choice__team_name":"Spurs","player_has_been_steved":true,'
+        '"team_has_been_steved":false,"gameweek_id__gameweek_no":2,'
+        '"team_point_awarded":true,"player_point_awarded":false}]'
+    )
 
     mock_request.get.return_value = mock_response
     mock_streamlit.session_state.get.return_value = session_funballer_name
