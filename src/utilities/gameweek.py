@@ -1,12 +1,10 @@
-import json
-import os
 from datetime import datetime
-from typing import Dict
 
 import pytz
-import requests
 
-FANTASY_FUNBALL_URL = os.environ.get("FANTASY_FUNBALL_URL")
+from src.interface.fantasy_funball import FantasyFunballInterface
+
+FANTASY_FUNBALL_INTERFACE = FantasyFunballInterface()
 
 
 def _localise_datetime(datetime: datetime, timezone: str) -> datetime:
@@ -26,17 +24,10 @@ def _localise_datetime(datetime: datetime, timezone: str) -> datetime:
     return localised_datetime
 
 
-def _retrieve_gameweek_data() -> Dict:
-    gameweek_info = requests.get(f"{FANTASY_FUNBALL_URL}gameweek/all/")
-    gameweek_data = json.loads(gameweek_info.text)
-
-    return gameweek_data
-
-
 def determine_gameweek_no() -> int:
     """Uses local time to determine what gameweek number we are in"""
     # TODO: Can be improved, currently runs through all gameweeks
-    gameweek_data = _retrieve_gameweek_data()
+    gameweek_data = FANTASY_FUNBALL_INTERFACE.get_all_gameweek_data()
 
     current_datetime = _localise_datetime(datetime=datetime.now(), timezone="utc")
 
@@ -58,7 +49,7 @@ def determine_gameweek_no() -> int:
 def get_gameweek_deadline(gameweek_no: int) -> str:
     """Gets the deadline for a specific gameweek"""
     # Retrieve list of gameweek objects, sorted by deadline
-    gameweek_data = _retrieve_gameweek_data()
+    gameweek_data = FANTASY_FUNBALL_INTERFACE.get_single_gameweek_data()
 
     gameweek_deadline_utc = next(
         gameweek["deadline"]

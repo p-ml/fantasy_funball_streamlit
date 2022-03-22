@@ -69,7 +69,7 @@ def gameweeks_app():
 
     try:
         fantasy_funball_interface = FantasyFunballInterface()
-        gameweek_data = fantasy_funball_interface.get_gameweek_data(
+        gameweek_data = fantasy_funball_interface.get_single_gameweek_data(
             gameweek_no=gameweek_no
         )
 
