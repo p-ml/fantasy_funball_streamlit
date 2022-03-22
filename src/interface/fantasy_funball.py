@@ -139,3 +139,25 @@ class FantasyFunballInterface:
         gameweek_data = json.loads(gameweek_info.text)
 
         return gameweek_data
+
+    def get_funballer_data(self) -> Dict:
+        """Retrieve all funballer data from backend"""
+        funballers = requests.get(f"{self.funball_url}funballer/")
+        funballers_text = json.loads(funballers.text)
+
+        funballer_data = self.formatter.format_funballer_data(
+            funballer_data=funballers_text
+        )
+
+        return funballer_data
+
+    def get_gameweek_summary(self) -> Dict:
+        """Retrieves gameweek summary from backend"""
+        gameweek_summary = requests.get(f"{self.funball_url}gameweek/summary/")
+        gameweek_summary_text = json.loads(gameweek_summary.text)
+
+        return gameweek_summary_text
+
+    def update_standings(self) -> None:
+        """Wrapper to make update_standings request callable"""
+        requests.get(f"{self.funball_url}update_database/")

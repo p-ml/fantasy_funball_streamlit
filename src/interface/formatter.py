@@ -106,7 +106,7 @@ class FunballInterfaceFormatter:
 
     @classmethod
     def format_all_players_from_team(cls, player_data: List) -> Dict:
-        player_names = [f"{x['first_name']} {x['surname']}" for x in players_text]
+        player_names = [f"{x['first_name']} {x['surname']}" for x in player_data]
         goals = [x["goals"] for x in player_data]
         assists = [x["assists"] for x in player_data]
 
@@ -117,3 +117,18 @@ class FunballInterfaceFormatter:
         }
 
         return formatted_player_data
+
+    def format_funballer_data(self, funballer_data: List) -> Dict:
+        funballer_names = [x["first_name"] for x in funballer_data]
+        funballer_team_points = [x["team_points"] for x in funballer_data]
+        funballer_player_points = [x["player_points"] for x in funballer_data]
+        funballer_points = [x["points"] for x in funballer_data]
+
+        funballer_data = {
+            "funballer_names": funballer_names,
+            "funballer_team_points": funballer_team_points,
+            "funballer_player_points": funballer_player_points,
+            "funballer_points": funballer_points,
+        }
+
+        return funballer_data

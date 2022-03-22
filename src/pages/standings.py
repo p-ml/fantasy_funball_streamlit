@@ -1,11 +1,9 @@
-import json
-import os
-from typing import Dict, List
+from typing import Dict
 
 import pandas as pd
-import requests
 import streamlit as st
 
+from src.interface.fantasy_funball import FantasyFunballInterface
 from src.utilities import (
     determine_gameweek_no,
     divider,
@@ -13,52 +11,17 @@ from src.utilities import (
     has_current_gameweek_deadline_passed,
 )
 
-FANTASY_FUNBALL_URL = os.environ.get("FANTASY_FUNBALL_URL")
-
-
-def _retrieve_gameweek_summary() -> Dict:
-    """Retrieves gameweek summary from backend"""
-    gameweek_summary = requests.get(f"{FANTASY_FUNBALL_URL}gameweek/summary/")
-    gameweek_summary_text = json.loads(gameweek_summary.text)
-
-    return gameweek_summary_text
+FANTASY_FUNBALLER_INTERFACE = FantasyFunballInterface()
 
 
 def _display_gameweek_summary() -> None:
     """Displays gameweek summary section"""
     st.subheader("Weekly Summary")
 
-    gameweek_summary = _retrieve_gameweek_summary()
+    gameweek_summary = FANTASY_FUNBALLER_INTERFACE.get_gameweek_summary()
     st.markdown(gameweek_summary["text"])
 
     divider()
-
-
-def _format_funballer_data(funballer_data: List) -> Dict:
-    """Parses and formats the raw funballer data"""
-    funballer_names = [x["first_name"] for x in funballer_data]
-    funballer_team_points = [x["team_points"] for x in funballer_data]
-    funballer_player_points = [x["player_points"] for x in funballer_data]
-    funballer_points = [x["points"] for x in funballer_data]
-
-    funballer_data = {
-        "funballer_names": funballer_names,
-        "funballer_team_points": funballer_team_points,
-        "funballer_player_points": funballer_player_points,
-        "funballer_points": funballer_points,
-    }
-
-    return funballer_data
-
-
-def _retrieve_funballer_data() -> Dict:
-    """Retrieve all funballer data from backend"""
-    funballers = requests.get(f"{FANTASY_FUNBALL_URL}funballer/")
-    funballers_text = json.loads(funballers.text)
-
-    funballer_data = _format_funballer_data(funballer_data=funballers_text)
-
-    return funballer_data
 
 
 def _create_standings_dataframe(funballer_data: Dict) -> pd.DataFrame:
@@ -100,22 +63,17 @@ def _display_standings() -> None:
     """Displays current standings"""
     st.subheader("Standings")
 
-    funballer_data = _retrieve_funballer_data()
+    funballer_data = FANTASY_FUNBALLER_INTERFACE.get_funballer_data()
     standings_dataframe = _create_standings_dataframe(funballer_data=funballer_data)
 
     st.write(standings_dataframe)
     divider()
 
 
-def _update_standings() -> None:
-    """Wrapper to make update_standings request callable"""
-    requests.get(f"{FANTASY_FUNBALL_URL}update_database/"),
-
-
 def _display_update_standings_button() -> None:
     update_standings_button = st.button(
         label="Update Standings",
-        on_click=_update_standings(),
+        on_click=FANTASY_FUNBALLER_INTERFACE.update_standings(),
     )
 
     if update_standings_button:
