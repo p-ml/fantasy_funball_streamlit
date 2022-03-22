@@ -3,7 +3,7 @@ from typing import Dict
 import pandas as pd
 import streamlit as st
 
-from src.interface.fantasy_funball import FantasyFunballInterface
+from src.interface.fantasy_funball import FunballInterface
 from src.utilities import (
     determine_gameweek_no,
     divider,
@@ -11,7 +11,7 @@ from src.utilities import (
     has_current_gameweek_deadline_passed,
 )
 
-FANTASY_FUNBALLER_INTERFACE = FantasyFunballInterface()
+FANTASY_FUNBALLER_INTERFACE = FunballInterface()
 
 
 def _display_gameweek_summary() -> None:

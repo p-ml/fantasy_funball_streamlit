@@ -2,9 +2,9 @@ from datetime import datetime
 
 import pytz
 
-from src.interface.fantasy_funball import FantasyFunballInterface
+from src.interface.fantasy_funball import FunballInterface
 
-FANTASY_FUNBALL_INTERFACE = FantasyFunballInterface()
+FANTASY_FUNBALL_INTERFACE = FunballInterface()
 
 
 def _localise_datetime(datetime: datetime, timezone: str) -> datetime:

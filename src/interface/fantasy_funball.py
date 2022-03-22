@@ -27,7 +27,7 @@ SubmitChoiceData = namedtuple(
 )
 
 
-class FantasyFunballInterface:
+class FunballInterface:
     def __init__(self):
         self.funball_url = os.environ.get("FANTASY_FUNBALL_URL")
         self.formatter = FunballInterfaceFormatter()

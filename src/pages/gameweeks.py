@@ -3,7 +3,7 @@ from json import JSONDecodeError
 import pandas as pd
 import streamlit as st
 
-from src.interface.fantasy_funball import FantasyFunballInterface, SortedGameweekData
+from src.interface.fantasy_funball import FunballInterface, SortedGameweekData
 from src.utilities import (
     determine_gameweek_no,
     get_gameweek_deadline,
@@ -68,7 +68,7 @@ def gameweeks_app():
     gameweek_deadline = get_gameweek_deadline(gameweek_no=gameweek_no)
 
     try:
-        fantasy_funball_interface = FantasyFunballInterface()
+        fantasy_funball_interface = FunballInterface()
         gameweek_data = fantasy_funball_interface.get_single_gameweek_data(
             gameweek_no=gameweek_no
         )

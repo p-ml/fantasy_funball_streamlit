@@ -4,11 +4,7 @@ from typing import List
 import streamlit as st
 from pandas import DataFrame
 
-from src.interface.fantasy_funball import (
-    ChoicesData,
-    FantasyFunballInterface,
-    SubmitChoiceData,
-)
+from src.interface.fantasy_funball import ChoicesData, FunballInterface, SubmitChoiceData
 from src.utilities import (
     determine_gameweek_no,
     divider,
@@ -24,7 +20,7 @@ ColourMap = namedtuple(
     ],
 )
 
-FANTASY_FUNBALL_INTERFACE = FantasyFunballInterface()
+FANTASY_FUNBALL_INTERFACE = FunballInterface()
 
 
 class DataframeStyler:

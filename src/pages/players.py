@@ -4,7 +4,7 @@ from typing import Dict
 import pandas as pd
 import streamlit as st
 
-from src.interface.fantasy_funball import FantasyFunballInterface
+from src.interface.fantasy_funball import FunballInterface
 from src.utilities import get_team_names
 
 SortedPlayerData = namedtuple("SortedPlayerData", ["player_names", "goals", "assists"])
@@ -58,7 +58,7 @@ def players_app():
 
     team_name = _display_retrieve_players_form()
 
-    fantasy_funball_interface = FantasyFunballInterface()
+    fantasy_funball_interface = FunballInterface()
     player_data = fantasy_funball_interface.get_all_players_from_team(team_name=team_name)
 
     sorted_player_data = _sort_player_data(player_data=player_data)
