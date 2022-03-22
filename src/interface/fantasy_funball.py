@@ -7,18 +7,13 @@ from typing import List
 import requests
 import streamlit as st
 
-from src.utilities import divider
-
-ChoicesData = namedtuple(
-    "ChoicesData",
-    [
-        "gameweek_no",
-        "team_choice",
-        "player_choice",
-        "player_point_awarded",
-        "team_point_awarded",
-    ],
+from src.interface.formatter import (
+    ChoicesData,
+    FunballInterfaceFormatter,
+    SortedGameweekData,
+    ValidTeamSelections,
 )
+from src.utilities import divider
 
 SubmitChoiceData = namedtuple(
     "SubmitChoiceData",
@@ -31,18 +26,11 @@ SubmitChoiceData = namedtuple(
     ],
 )
 
-ValidTeamSelections = namedtuple(
-    "ValidTeamSelections",
-    [
-        "team_names",
-        "remaining_selections",
-    ],
-)
-
 
 class FantasyFunballInterface:
     def __init__(self):
         self.funball_url = os.environ.get("FANTASY_FUNBALL_URL")
+        self.formatter = FunballInterfaceFormatter()
 
     def get_choices_data(
         self, funballer_name: str, gameweek_no_limit: int
@@ -59,34 +47,19 @@ class FantasyFunballInterface:
             view_all_choices = False
 
         try:
-            gameweek_json = json.loads(choices.text)
+            choices_data = json.loads(choices.text)
             if not view_all_choices:
-                gameweek_data = [
+                choices_data = [
                     x
-                    for x in gameweek_json
+                    for x in choices_data
                     if x["gameweek_id__gameweek_no"] in range(1, gameweek_no_limit)
                 ]
-            else:
-                gameweek_data = gameweek_json
 
-            gameweek_no = [x["gameweek_id__gameweek_no"] for x in gameweek_data]
-            team_choice = [x["team_choice__team_name"] for x in gameweek_data]
-            player_choice = [
-                f"{x['player_choice__first_name']} {x['player_choice__surname']}"
-                for x in gameweek_data
-            ]
-            player_point_awarded = [x["player_point_awarded"] for x in gameweek_data]
-            team_point_awarded = [x["team_point_awarded"] for x in gameweek_data]
-
-            choices_data = ChoicesData(
-                gameweek_no=gameweek_no,
-                team_choice=team_choice,
-                player_choice=player_choice,
-                player_point_awarded=player_point_awarded,
-                team_point_awarded=team_point_awarded,
+            formatted_choices_data = self.formatter.format_choices_data(
+                choices_data=choices_data,
             )
 
-            return choices_data
+            return formatted_choices_data
 
         except (JSONDecodeError, TypeError):
             st.error("Please enter a valid funballer name")
@@ -123,21 +96,29 @@ class FantasyFunballInterface:
 
         return player_data
 
-    def get_funballer_valid_team_picks(self, funballer_name: str) -> ValidTeamSelections:
+    def get_funballer_valid_team_selections(
+        self, funballer_name: str
+    ) -> ValidTeamSelections:
         """Retrieve the remaining available team selections for the requested funballer"""
         remaining_valid_teams_raw = requests.get(
             f"{self.funball_url}funballer/choices/valid_teams/{funballer_name}"
         )
         remaining_valid_teams = json.loads(remaining_valid_teams_raw.text)
 
-        team_names = [response["team_name"] for response in remaining_valid_teams]
-        remaining_selections = [
-            response["remaining_selections"] for response in remaining_valid_teams
-        ]
-
-        valid_team_selections = ValidTeamSelections(
-            team_names=team_names,
-            remaining_selections=remaining_selections,
+        valid_team_selections = self.formatter.format_funballer_valid_team_selections(
+            remaining_valid_teams_data=remaining_valid_teams,
         )
 
         return valid_team_selections
+
+    def get_gameweek_data(self, gameweek_no: int) -> SortedGameweekData:
+        """Retrieve gameweek data from backend & format it"""
+        gameweek_data_raw = requests.get(f"{self.funball_url}gameweek/{gameweek_no}")
+
+        gameweek_data = json.loads(gameweek_data_raw.text)
+
+        formatted_gameweek_data = self.formatter.format_gameweek_data(
+            gameweek_data=gameweek_data
+        )
+
+        return formatted_gameweek_data

@@ -323,7 +323,7 @@ def _display_funballers_remaining_picks(funballer_name: str) -> None:
     """Display the remaining available team picks for the requested funballer"""
     st.subheader(f"Remaining Team Picks for {funballer_name}")
 
-    valid_team_selections = FANTASY_FUNBALL_INTERFACE.get_funballer_valid_team_picks(
+    valid_team_selections = FANTASY_FUNBALL_INTERFACE.get_funballer_valid_team_selections(
         funballer_name=funballer_name,
     )
 
