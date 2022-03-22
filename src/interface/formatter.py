@@ -1,6 +1,6 @@
 from collections import namedtuple
 from datetime import datetime
-from typing import List
+from typing import Dict, List
 
 import pytz
 
@@ -103,3 +103,17 @@ class FunballInterfaceFormatter:
         )
 
         return choices_data
+
+    @classmethod
+    def format_all_players_from_team(cls, player_data: List) -> Dict:
+        player_names = [f"{x['first_name']} {x['surname']}" for x in players_text]
+        goals = [x["goals"] for x in player_data]
+        assists = [x["assists"] for x in player_data]
+
+        formatted_player_data = {
+            "player_names": player_names,
+            "goals": goals,
+            "assists": assists,
+        }
+
+        return formatted_player_data

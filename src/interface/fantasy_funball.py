@@ -88,13 +88,23 @@ class FantasyFunballInterface:
 
         divider()
 
-    def get_player_data(self) -> List:
-        """Retrieve player data from the backend"""
-        # TODO: similar function in `src.pages.players`
+    def get_all_player_data(self) -> List:
+        """Retrieve data on ALL players from the backend"""
         raw_player_data = requests.get(f"{self.funball_url}players/")
         player_data = json.loads(raw_player_data.text)
 
         return player_data
+
+    def get_all_players_from_team(self, team_name: str) -> Dict:
+        """Retrieve player data from the funball backend"""
+        players = requests.get(f"{self.funball_url}{team_name}/players/")
+        player_data = json.loads(players.text)
+
+        formatted_player_data = self.formatter.format_all_players_from_team(
+            player_data=player_data,
+        )
+
+        return formatted_player_data
 
     def get_funballer_valid_team_selections(
         self, funballer_name: str
