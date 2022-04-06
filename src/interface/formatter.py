@@ -1,31 +1,9 @@
-from collections import namedtuple
 from datetime import datetime
 from typing import Dict, List
 
 import pytz
 
-SortedGameweekData = namedtuple(
-    "SortedGameweekData", ["home_teams", "away_teams", "game_dates", "kickoffs"]
-)
-
-ValidTeamSelections = namedtuple(
-    "ValidTeamSelections",
-    [
-        "team_names",
-        "remaining_selections",
-    ],
-)
-
-ChoicesData = namedtuple(
-    "ChoicesData",
-    [
-        "gameweek_no",
-        "team_choice",
-        "player_choice",
-        "player_point_awarded",
-        "team_point_awarded",
-    ],
-)
+from src.utilities import ChoicesData, ValidTeamSelections
 
 
 class FunballInterfaceFormatter:
@@ -44,7 +22,7 @@ class FunballInterfaceFormatter:
 
         return formatted_kickoffs
 
-    def format_gameweek_data(self, gameweek_data: List) -> SortedGameweekData:
+    def format_gameweek_data(self, gameweek_data: List) -> Dict:
         """Format gameweek data by sorting by gameweek id"""
         # Sort into ascending order by date, can be done via "id"
         gameweek_sorted = sorted(gameweek_data, key=lambda x: x["id"])
@@ -58,12 +36,12 @@ class FunballInterfaceFormatter:
 
         formatted_kickoffs = self._format_kickoffs(kickoffs=game_kickoffs)
 
-        sorted_gameweek_data = SortedGameweekData(
-            home_teams=home_teams,
-            away_teams=away_teams,
-            game_dates=game_dates,
-            kickoffs=formatted_kickoffs,
-        )
+        sorted_gameweek_data = {
+            "home_teams": home_teams,
+            "away_teams": away_teams,
+            "game_dates": game_dates,
+            "game_kickoffs": formatted_kickoffs,
+        }
 
         return sorted_gameweek_data
 

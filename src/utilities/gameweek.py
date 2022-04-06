@@ -1,10 +1,7 @@
 from datetime import datetime
+from typing import List
 
 import pytz
-
-from src.interface.fantasy_funball import FunballInterface
-
-FANTASY_FUNBALL_INTERFACE = FunballInterface()
 
 
 def _localise_datetime(datetime: datetime, timezone: str) -> datetime:
@@ -24,15 +21,13 @@ def _localise_datetime(datetime: datetime, timezone: str) -> datetime:
     return localised_datetime
 
 
-def determine_gameweek_no() -> int:
+def determine_gameweek_no(all_gameweek_data: List) -> int:
     """Uses local time to determine what gameweek number we are in"""
     # TODO: Can be improved, currently runs through all gameweeks
-    gameweek_data = FANTASY_FUNBALL_INTERFACE.get_all_gameweek_data()
-
     current_datetime = _localise_datetime(datetime=datetime.now(), timezone="utc")
 
     gameweek_no = 0  # Season hasn't started yet
-    for gameweek in gameweek_data:
+    for gameweek in all_gameweek_data:
         # Convert deadline str to datetime
         deadline_datetime = datetime.strptime(gameweek["deadline"], "%Y-%m-%dT%H:%M:%SZ")
         localised_deadline_datetime = _localise_datetime(
@@ -46,11 +41,8 @@ def determine_gameweek_no() -> int:
     return gameweek_no
 
 
-def get_gameweek_deadline(gameweek_no: int) -> str:
+def get_gameweek_deadline(gameweek_no: int, gameweek_data: List) -> str:
     """Gets the deadline for a specific gameweek"""
-    # Retrieve list of gameweek objects, sorted by deadline
-    gameweek_data = FANTASY_FUNBALL_INTERFACE.get_single_gameweek_data()
-
     gameweek_deadline_utc = next(
         gameweek["deadline"]
         for gameweek in gameweek_data
@@ -75,8 +67,14 @@ def get_gameweek_deadline(gameweek_no: int) -> str:
     return gameweek_deadline
 
 
-def has_current_gameweek_deadline_passed(gameweek_no: int) -> bool:
-    current_gameweek_deadline = get_gameweek_deadline(gameweek_no=gameweek_no)
+def has_current_gameweek_deadline_passed(
+    gameweek_no: int,
+    gameweek_data: List,
+) -> bool:
+    current_gameweek_deadline = get_gameweek_deadline(
+        gameweek_no=gameweek_no,
+        gameweek_data=gameweek_data,
+    )
 
     current_datetime = _localise_datetime(
         datetime=datetime.now(),
@@ -96,3 +94,20 @@ def has_current_gameweek_deadline_passed(gameweek_no: int) -> bool:
         return True
 
     return False
+
+
+def determine_default_gameweek_no(all_gameweek_data: List) -> int:
+    """
+    Determines the default gameweek no - returns the number of the next
+    gameweek if the current gameweek deadline has passed.
+    """
+    gameweek_no_limit = determine_gameweek_no(all_gameweek_data=all_gameweek_data)
+
+    current_gameweek_deadline_passed = has_current_gameweek_deadline_passed(
+        gameweek_no=gameweek_no_limit,
+        gameweek_data=all_gameweek_data,
+    )
+    if current_gameweek_deadline_passed:
+        gameweek_no_limit += 1
+
+    return gameweek_no_limit

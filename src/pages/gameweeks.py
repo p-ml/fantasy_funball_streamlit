@@ -1,31 +1,12 @@
 from json import JSONDecodeError
+from typing import Dict
 
 import pandas as pd
 import streamlit as st
 
-from src.interface.fantasy_funball import FunballInterface, SortedGameweekData
-from src.utilities import (
-    determine_gameweek_no,
-    get_gameweek_deadline,
-    has_current_gameweek_deadline_passed,
-)
-
-
-def _determine_default_gameweek_no() -> int:
-    """
-    Determines default gameweek no. If deadline has passed for current gameweek,
-    the next gameweek no is returned.
-    """
-    default_gameweek_no = determine_gameweek_no()
-
-    gameweek_deadline_passed = has_current_gameweek_deadline_passed(
-        gameweek_no=default_gameweek_no,
-    )
-
-    if gameweek_deadline_passed:
-        default_gameweek_no += 1
-
-    return default_gameweek_no
+from src.interface import FunballInterface
+from src.utilities import get_gameweek_deadline
+from src.utilities.gameweek import determine_default_gameweek_no
 
 
 def _display_gameweek_select_box(default_gameweek_no: int) -> int:
@@ -41,16 +22,16 @@ def _display_gameweek_select_box(default_gameweek_no: int) -> int:
 
 
 def _display_gameweek_data(
-    gameweek_data: SortedGameweekData,
+    gameweek_data: Dict,
     gameweek_no: int,
 ) -> None:
     """Create gameweek dataframe and display it"""
     gameweeks_dataframe = pd.DataFrame(
         {
-            "Home Team": gameweek_data.home_teams,
-            "Away Team": gameweek_data.away_teams,
-            "Kickoff": gameweek_data.kickoffs,
-            "Date": gameweek_data.game_dates,
+            "Home Team": gameweek_data["home_teams"],
+            "Away Team": gameweek_data["away_teams"],
+            "Kickoff": gameweek_data["game_kickoffs"],
+            "Date": gameweek_data["game_dates"],
         }
     )
 
@@ -61,25 +42,31 @@ def _display_gameweek_data(
 def gameweeks_app():
     st.subheader("Gameweeks")
 
-    default_gameweek_no = _determine_default_gameweek_no()
+    funball_interface = FunballInterface()
+    all_gameweek_data = funball_interface.get_all_gameweek_data()
+
+    default_gameweek_no = determine_default_gameweek_no(
+        all_gameweek_data=all_gameweek_data,
+    )
 
     gameweek_no = _display_gameweek_select_box(default_gameweek_no=default_gameweek_no)
 
-    gameweek_deadline = get_gameweek_deadline(gameweek_no=gameweek_no)
-
     try:
-        fantasy_funball_interface = FunballInterface()
-        gameweek_data = fantasy_funball_interface.get_single_gameweek_data(
-            gameweek_no=gameweek_no
+        gameweek_deadline = get_gameweek_deadline(
+            gameweek_no=gameweek_no,
+            gameweek_data=all_gameweek_data,
         )
 
-        _display_gameweek_data(
-            gameweek_data=gameweek_data,
+        single_gameweek_data = funball_interface.get_single_gameweek_data(
             gameweek_no=gameweek_no,
         )
+        _display_gameweek_data(
+            gameweek_data=single_gameweek_data,
+            gameweek_no=gameweek_no,
+        )
+
+        st.markdown(f"**Gameweek {gameweek_no} Deadline:** {gameweek_deadline}")
 
     except (JSONDecodeError, TypeError):
         st.error("Please enter a gameweek number, valid range: 1-38")
         st.stop()
-
-    st.markdown(f"**Gameweek {gameweek_no} Deadline:** {gameweek_deadline}")

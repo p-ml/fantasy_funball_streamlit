@@ -1,26 +1,19 @@
-from collections import namedtuple
 from typing import List
 
 import streamlit as st
 from pandas import DataFrame
 
-from src.interface.fantasy_funball import ChoicesData, FunballInterface, SubmitChoiceData
+from src.interface import FunballInterface
 from src.utilities import (
-    determine_gameweek_no,
+    ChoicesData,
+    ColourMap,
+    SubmitChoiceData,
     divider,
     get_team_names,
-    has_current_gameweek_deadline_passed,
 )
+from src.utilities.gameweek import determine_default_gameweek_no
 
-ColourMap = namedtuple(
-    "ColourMap",
-    [
-        "team_points",
-        "player_points",
-    ],
-)
-
-FANTASY_FUNBALL_INTERFACE = FunballInterface()
+FUNBALL_INTERFACE = FunballInterface()
 
 
 class DataframeStyler:
@@ -171,22 +164,6 @@ def _display_choices_form() -> str:
     return funballer_name
 
 
-def _determine_gameweek_no_limit() -> int:
-    """
-    Determines the gameweek number limit, returns the number of the next
-    gameweek if the current gameweek deadline has passed.
-    """
-    # TODO: Remove, this is a duplicate of `determine_default_gameweek_no`
-    gameweek_no_limit = determine_gameweek_no()
-    current_gameweek_deadline_passed = has_current_gameweek_deadline_passed(
-        gameweek_no=gameweek_no_limit,
-    )
-    if current_gameweek_deadline_passed:
-        gameweek_no_limit += 1
-
-    return gameweek_no_limit
-
-
 def _create_choices_colour_map(choices_data: ChoicesData) -> ColourMap:
     """
     Create dataframe colour map for points awarded for team and player choices.
@@ -282,7 +259,7 @@ def _display_choices_dataframe(choices_dataframe: DataFrame) -> None:
 def _create_submit_choices_form(default_gameweek_no: int) -> SubmitChoiceData:
     st.subheader("Submit Choices")
 
-    player_data = FANTASY_FUNBALL_INTERFACE.get_player_data()
+    player_data = FUNBALL_INTERFACE.get_all_player_data()
 
     player_names = [player["name"] for player in player_data]
 
@@ -319,7 +296,7 @@ def _display_funballers_remaining_picks(funballer_name: str) -> None:
     """Display the remaining available team picks for the requested funballer"""
     st.subheader(f"Remaining Team Picks for {funballer_name}")
 
-    valid_team_selections = FANTASY_FUNBALL_INTERFACE.get_funballer_valid_team_selections(
+    valid_team_selections = FUNBALL_INTERFACE.get_funballer_valid_team_selections(
         funballer_name=funballer_name,
     )
 
@@ -341,9 +318,13 @@ def choices_app():
 
     funballer_name = _display_choices_form()
 
-    gameweek_no_limit = _determine_gameweek_no_limit()
+    all_gameweek_data = FUNBALL_INTERFACE.get_all_gameweek_data()
 
-    choices_data = FANTASY_FUNBALL_INTERFACE.get_choices_data(
+    gameweek_no_limit = determine_default_gameweek_no(
+        all_gameweek_data=all_gameweek_data,
+    )
+
+    choices_data = FUNBALL_INTERFACE.get_choices_data(
         funballer_name=funballer_name,
         gameweek_no_limit=gameweek_no_limit,
     )
@@ -360,6 +341,6 @@ def choices_app():
     )
 
     if submit_choice_data.submit:
-        FANTASY_FUNBALL_INTERFACE.post_choice(payload=submit_choice_data)
+        FUNBALL_INTERFACE.post_choice(payload=submit_choice_data)
 
     _display_funballers_remaining_picks(funballer_name=funballer_name)

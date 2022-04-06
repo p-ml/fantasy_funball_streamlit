@@ -1,30 +1,13 @@
 import json
 import os
-from collections import namedtuple
 from json import JSONDecodeError
 from typing import Dict, List
 
 import requests
 import streamlit as st
 
-from src.interface.formatter import (
-    ChoicesData,
-    FunballInterfaceFormatter,
-    SortedGameweekData,
-    ValidTeamSelections,
-)
-from src.utilities import divider
-
-SubmitChoiceData = namedtuple(
-    "SubmitChoiceData",
-    [
-        "pin",
-        "gameweek_no",
-        "team_choice",
-        "player_choice",
-        "submit",
-    ],
-)
+from src.interface.formatter import FunballInterfaceFormatter
+from src.utilities import ChoicesData, SubmitChoiceData, ValidTeamSelections, divider
 
 
 class FunballInterface:
@@ -121,7 +104,7 @@ class FunballInterface:
 
         return valid_team_selections
 
-    def get_single_gameweek_data(self, gameweek_no: int) -> SortedGameweekData:
+    def get_single_gameweek_data(self, gameweek_no: int) -> Dict:
         """Retrieve gameweek data from backend & format it"""
         gameweek_data_raw = requests.get(f"{self.funball_url}gameweek/{gameweek_no}")
 
@@ -133,7 +116,7 @@ class FunballInterface:
 
         return formatted_gameweek_data
 
-    def get_all_gameweek_data(self) -> Dict:
+    def get_all_gameweek_data(self) -> List:
         """Retrieve data on all gameweeks"""
         gameweek_info = requests.get(f"{self.funball_url}gameweek/all/")
         gameweek_data = json.loads(gameweek_info.text)
