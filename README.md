@@ -16,7 +16,7 @@ has been set up to run the tests on every push.
 
 
 ## Deployment
-The app can be run locally with `python -m streamlit fantasy_funball.py', which will use
+The app can be run locally with `python -m streamlit fantasy_funball.py`, which will use
 port 8501 by default.
 
 The app is hosted on Streamlit Sharing, where any push to `master` will be automatically deployed.
