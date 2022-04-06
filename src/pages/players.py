@@ -1,16 +1,10 @@
-import json
-import os
-from collections import namedtuple
 from typing import Dict
 
 import pandas as pd
-import requests
 import streamlit as st
 
-from src.utilities import get_team_names
-
-FANTASY_FUNBALL_URL = os.environ.get("FANTASY_FUNBALL_URL")
-SortedPlayerData = namedtuple("SortedPlayerData", ["player_names", "goals", "assists"])
+from src.interface import FunballInterface
+from src.utilities import SortedPlayerData, get_team_names
 
 
 def _display_retrieve_players_form() -> str:
@@ -22,24 +16,6 @@ def _display_retrieve_players_form() -> str:
     retrieve_players_form.form_submit_button("Retrieve Players")
 
     return team_name
-
-
-def _retrieve_player_data(team_name: str) -> Dict:
-    """Retrieve player data from the funball backend"""
-    players = requests.get(f"{FANTASY_FUNBALL_URL}{team_name}/players/")
-    players_text = json.loads(players.text)
-
-    player_names = [f"{x['first_name']} {x['surname']}" for x in players_text]
-    goals = [x["goals"] for x in players_text]
-    assists = [x["assists"] for x in players_text]
-
-    player_data = {
-        "player_names": player_names,
-        "goals": goals,
-        "assists": assists,
-    }
-
-    return player_data
 
 
 def _sort_player_data(player_data: Dict) -> SortedPlayerData:
@@ -79,7 +55,8 @@ def players_app():
 
     team_name = _display_retrieve_players_form()
 
-    player_data = _retrieve_player_data(team_name=team_name)
+    funball_interface = FunballInterface()
+    player_data = funball_interface.get_all_players_from_team(team_name=team_name)
 
     sorted_player_data = _sort_player_data(player_data=player_data)
 

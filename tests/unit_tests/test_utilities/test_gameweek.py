@@ -1,14 +1,13 @@
 import datetime
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 import pytz
-from requests import Response
 
 from src.utilities import determine_gameweek_no
 from src.utilities.gameweek import (
     _localise_datetime,
-    _retrieve_gameweek_data,
+    determine_default_gameweek_no,
     get_gameweek_deadline,
     has_current_gameweek_deadline_passed,
 )
@@ -46,19 +45,6 @@ def test__localise_datetime_unsupported_locale(dummy_datetime):
     assert str(exc.value) == "Timezone not supported."
 
 
-@patch(f"{GAMEWEEK_UTILITIES_PATH}.requests")
-def test__retrieve_gameweek_data(mock_requests):
-    expected_output = [{"gameweek_no": 1, "deadline": "2022-01-01T00:00:00Z"}]
-
-    mock_request_response = Mock(object=Response)
-    mock_request_response.text = '[{"gameweek_no": 1,"deadline":"2022-01-01T00:00:00Z"}]'
-    mock_requests.get.return_value = mock_request_response
-
-    output = _retrieve_gameweek_data()
-
-    assert output == expected_output
-
-
 @pytest.mark.parametrize(
     "current_datetime, expected_output",
     [
@@ -79,15 +65,13 @@ def test__retrieve_gameweek_data(mock_requests):
     ],
 )
 @patch(f"{GAMEWEEK_UTILITIES_PATH}.datetime")
-@patch(f"{GAMEWEEK_UTILITIES_PATH}._retrieve_gameweek_data")
 def test_determine_gameweek_no(
-    mock_get_gameweek_data,
     mock_datetime,
     current_datetime,
     expected_output,
     dummy_datetime,
 ):
-    mock_get_gameweek_data.return_value = [
+    mock_gameweek_data = [
         {
             "gameweek_no": 1,
             "deadline": "2022-01-02T12:00:00Z",
@@ -100,22 +84,19 @@ def test_determine_gameweek_no(
     # stored datetime (retrieved from backend)
     mock_datetime.strptime.return_value = dummy_datetime
 
-    output = determine_gameweek_no()
+    output = determine_gameweek_no(all_gameweek_data=mock_gameweek_data)
     assert output == expected_output
 
 
-@patch(f"{GAMEWEEK_UTILITIES_PATH}._retrieve_gameweek_data")
-def test_get_gameweek_deadline(
-    mock_get_gameweek_data,
-):
-    mock_get_gameweek_data.return_value = [
+def test_get_gameweek_deadline():
+    mock_gameweek_data = [
         {
             "gameweek_no": 1,
             "deadline": "2022-01-01T00:00:00Z",
         }
     ]
 
-    output = get_gameweek_deadline(gameweek_no=1)
+    output = get_gameweek_deadline(gameweek_no=1, gameweek_data=mock_gameweek_data)
     expected_output = "Sat 1 January 2022 @ 00:00:00"
 
     assert output == expected_output
@@ -137,6 +118,41 @@ def test_has_current_gameweek_deadline_passed(
     mock_gameweek_deadline.return_value = input_deadline
 
     arbitrary_gameweek_no = 1
-    output = has_current_gameweek_deadline_passed(gameweek_no=arbitrary_gameweek_no)
+    output = has_current_gameweek_deadline_passed(
+        gameweek_no=arbitrary_gameweek_no,
+        gameweek_data=[],
+    )
+
+    assert output == expected_output
+
+
+@pytest.mark.parametrize(
+    "deadline_passed, expected_output",
+    [
+        (True, 2),
+        (False, 1),
+    ],
+)
+@patch(f"{GAMEWEEK_UTILITIES_PATH}.determine_gameweek_no")
+@patch(f"{GAMEWEEK_UTILITIES_PATH}.has_current_gameweek_deadline_passed")
+def test__determine_default_gameweek_no(
+    mock_has_deadline_passed,
+    mock_gameweek_no,
+    deadline_passed,
+    expected_output,
+):
+    mock_gameweek_no.return_value = 1
+    mock_has_deadline_passed.return_value = deadline_passed
+
+    mock_gameweek_data = [
+        {
+            "gameweek_no": 1,
+            "deadline": "2022-01-01T00:00:00Z",
+        }
+    ]
+
+    output = determine_default_gameweek_no(
+        all_gameweek_data=mock_gameweek_data,
+    )
 
     assert output == expected_output

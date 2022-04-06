@@ -1,48 +1,19 @@
-import json
-import os
-from collections import namedtuple
-from json import JSONDecodeError
 from typing import List
 
-import requests
 import streamlit as st
 from pandas import DataFrame
 
+from src.interface import FunballInterface
 from src.utilities import (
-    determine_gameweek_no,
+    ChoicesData,
+    ColourMap,
+    SubmitChoiceData,
     divider,
     get_team_names,
-    has_current_gameweek_deadline_passed,
 )
+from src.utilities.gameweek import determine_default_gameweek_no
 
-FANTASY_FUNBALL_URL = os.environ.get("FANTASY_FUNBALL_URL")
-ChoicesData = namedtuple(
-    "ChoicesData",
-    [
-        "gameweek_no",
-        "team_choice",
-        "player_choice",
-        "player_point_awarded",
-        "team_point_awarded",
-    ],
-)
-ColourMap = namedtuple(
-    "ColourMap",
-    [
-        "team_points",
-        "player_points",
-    ],
-)
-SubmitChoiceData = namedtuple(
-    "SubmitChoiceData",
-    [
-        "pin",
-        "gameweek_no",
-        "team_choice",
-        "player_choice",
-        "submit",
-    ],
-)
+FUNBALL_INTERFACE = FunballInterface()
 
 
 class DataframeStyler:
@@ -193,69 +164,6 @@ def _display_choices_form() -> str:
     return funballer_name
 
 
-def _determine_gameweek_no_limit() -> int:
-    """
-    Determines the gameweek number limit, returns the number of the next
-    gameweek if the current gameweek deadline has passed.
-    """
-    # TODO: Remove, this is a duplicate of `determine_default_gameweek_no`
-    gameweek_no_limit = determine_gameweek_no()
-    current_gameweek_deadline_passed = has_current_gameweek_deadline_passed(
-        gameweek_no=gameweek_no_limit,
-    )
-    if current_gameweek_deadline_passed:
-        gameweek_no_limit += 1
-
-    return gameweek_no_limit
-
-
-def _retrieve_choices_data(funballer_name: str, gameweek_no_limit: int) -> ChoicesData:
-    """
-    Retrieve choices data from the backend. Only displays all future choices
-    if the requested funballer matches that stored in the streamlit session.
-    """
-    choices = requests.get(f"{FANTASY_FUNBALL_URL}funballer/choices/{funballer_name}")
-
-    if funballer_name == st.session_state.get("funballer_name"):
-        view_all_choices = True
-    else:
-        view_all_choices = False
-
-    try:
-        gameweek_json = json.loads(choices.text)
-        if not view_all_choices:
-            gameweek_data = [
-                x
-                for x in gameweek_json
-                if x["gameweek_id__gameweek_no"] in range(1, gameweek_no_limit)
-            ]
-        else:
-            gameweek_data = gameweek_json
-
-        gameweek_no = [x["gameweek_id__gameweek_no"] for x in gameweek_data]
-        team_choice = [x["team_choice__team_name"] for x in gameweek_data]
-        player_choice = [
-            f"{x['player_choice__first_name']} {x['player_choice__surname']}"
-            for x in gameweek_data
-        ]
-        player_point_awarded = [x["player_point_awarded"] for x in gameweek_data]
-        team_point_awarded = [x["team_point_awarded"] for x in gameweek_data]
-
-        choices_data = ChoicesData(
-            gameweek_no=gameweek_no,
-            team_choice=team_choice,
-            player_choice=player_choice,
-            player_point_awarded=player_point_awarded,
-            team_point_awarded=team_point_awarded,
-        )
-
-        return choices_data
-
-    except (JSONDecodeError, TypeError):
-        st.error("Please enter a valid funballer name")
-        st.stop()
-
-
 def _create_choices_colour_map(choices_data: ChoicesData) -> ColourMap:
     """
     Create dataframe colour map for points awarded for team and player choices.
@@ -348,19 +256,11 @@ def _display_choices_dataframe(choices_dataframe: DataFrame) -> None:
     divider()
 
 
-def _retrieve_player_data() -> List:
-    """Retrieve player data from the backend"""
-    # TODO: similar function in `src.pages.players`
-    raw_player_data = requests.get(f"{FANTASY_FUNBALL_URL}players/")
-    player_data = json.loads(raw_player_data.text)
-
-    return player_data
-
-
 def _create_submit_choices_form(default_gameweek_no: int) -> SubmitChoiceData:
     st.subheader("Submit Choices")
 
-    player_data = _retrieve_player_data()
+    player_data = FUNBALL_INTERFACE.get_all_player_data()
+
     player_names = [player["name"] for player in player_data]
 
     with st.form(key="submit_choices"):
@@ -392,48 +292,18 @@ def _create_submit_choices_form(default_gameweek_no: int) -> SubmitChoiceData:
         return submit_choice_data
 
 
-def _post_choice(submit_choices_data: SubmitChoiceData) -> None:
-    """Send POST request to backend with submitted choice payload"""
-    post_payload = {
-        "gameweek_no": submit_choices_data.gameweek_no,
-        "team_choice": submit_choices_data.team_choice,
-        "player_choice": submit_choices_data.player_choice,
-    }
-
-    submit_choices_request = requests.post(
-        url=f"{FANTASY_FUNBALL_URL}funballer/choices/submit/{submit_choices_data.pin}",
-        data=post_payload,
-    )
-
-    if submit_choices_request.status_code == 201:
-        st.markdown("Gameweek selection submitted! :white_check_mark:")
-    elif submit_choices_request.status_code == 200:
-        st.markdown("Gameweek selection updated! :ballot_box_with_check:️")
-    elif submit_choices_request.status_code in {400, 404, 500}:
-        error_message = json.loads(submit_choices_request.text)["detail"]
-        st.error(f"{error_message}")
-
-    divider()
-
-
 def _display_funballers_remaining_picks(funballer_name: str) -> None:
     """Display the remaining available team picks for the requested funballer"""
     st.subheader(f"Remaining Team Picks for {funballer_name}")
 
-    remaining_valid_teams_raw = requests.get(
-        f"{FANTASY_FUNBALL_URL}funballer/choices/valid_teams/{funballer_name}"
+    valid_team_selections = FUNBALL_INTERFACE.get_funballer_valid_team_selections(
+        funballer_name=funballer_name,
     )
-    remaining_valid_teams = json.loads(remaining_valid_teams_raw.text)
-
-    team_names = [response["team_name"] for response in remaining_valid_teams]
-    remaining_selections = [
-        response["remaining_selections"] for response in remaining_valid_teams
-    ]
 
     remaining_teams_dataframe = DataFrame(
         {
-            "Team Name": team_names,
-            "Remaining Selections": remaining_selections,
+            "Team Name": valid_team_selections.team_names,
+            "Remaining Selections": valid_team_selections.remaining_selections,
         },
     )
     styled_remaining_teams_dataframe = remaining_teams_dataframe.style.apply(
@@ -448,9 +318,13 @@ def choices_app():
 
     funballer_name = _display_choices_form()
 
-    gameweek_no_limit = _determine_gameweek_no_limit()
+    all_gameweek_data = FUNBALL_INTERFACE.get_all_gameweek_data()
 
-    choices_data = _retrieve_choices_data(
+    gameweek_no_limit = determine_default_gameweek_no(
+        all_gameweek_data=all_gameweek_data,
+    )
+
+    choices_data = FUNBALL_INTERFACE.get_choices_data(
         funballer_name=funballer_name,
         gameweek_no_limit=gameweek_no_limit,
     )
@@ -467,6 +341,6 @@ def choices_app():
     )
 
     if submit_choice_data.submit:
-        _post_choice(submit_choices_data=submit_choice_data)
+        FUNBALL_INTERFACE.post_choice(payload=submit_choice_data)
 
     _display_funballers_remaining_picks(funballer_name=funballer_name)
