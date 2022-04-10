@@ -21,10 +21,10 @@ with st.spinner(text="Loading..."):  # Displays this whilst loading
     # Title of the main page
     st.title("Fantasy Funball :soccer:")
 
+    app.add_page(title="Standings", func=standings_app)
     app.add_page(title="About", func=about_app)
     app.add_page(title="Choices", func=choices_app)
     app.add_page(title="Gameweeks", func=gameweeks_app)
     app.add_page(title="Players", func=players_app)
-    app.add_page(title="Standings", func=standings_app)
 
     app.run()
