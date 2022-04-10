@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fantasy_funball_streamlit"
-version = "0.1.2"
+version = "0.2.0"
 description = "Fantasy Funball Streamlit App"
 authors = ["p-ml <34091508+pjjml@users.noreply.github.com>"]
 

@@ -1,3 +1,4 @@
+from src.pages.about import about_app
 from src.pages.choices import choices_app
 from src.pages.gameweeks import gameweeks_app
 from src.pages.page_manager import MultiPage
@@ -9,5 +10,6 @@ __all__ = [
     gameweeks_app,
     choices_app,
     players_app,
+    about_app,
     MultiPage,
 ]
