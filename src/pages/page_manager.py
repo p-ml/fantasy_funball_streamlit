@@ -29,7 +29,6 @@ class MultiPage:
             )
 
         selected_page = next(
-            page["function"] for page in self.pages
-            if page["title"] == selected
+            page["function"] for page in self.pages if page["title"] == selected
         )
         selected_page()
