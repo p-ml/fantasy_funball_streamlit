@@ -1148,6 +1148,17 @@ validators = "*"
 watchdog = {version = "*", markers = "platform_system != \"Darwin\""}
 
 [[package]]
+name = "streamlit-option-menu"
+version = "0.3.2"
+description = "streamlit-option-menu is a simple Streamlit component that allows users to select a single item from a list of options in a menu."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+streamlit = ">=0.63"
+
+[[package]]
 name = "terminado"
 version = "0.13.3"
 description = "Tornado websocket backend for the Xterm.js Javascript terminal emulator library."
@@ -1330,7 +1341,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.9"
-content-hash = "b7e9faac6bde3cadbbdecd975d36a5a12421eec05ee28618647bdb5b57ef0d7f"
+content-hash = "ffc48eed57681f631cbc099937d930c797e0064dcd31bb94bcc8dce5593f6cdc"
 
 [metadata.files]
 altair = [
@@ -2080,6 +2091,10 @@ stack-data = [
 streamlit = [
     {file = "streamlit-1.7.0-py2.py3-none-any.whl", hash = "sha256:8c411afd0d67ded9fe2efdd57da3b4ac43286177a6b6ada74d499e19367461f3"},
     {file = "streamlit-1.7.0.tar.gz", hash = "sha256:f9e41d05e1ea85d0a00e980456180a505b204e5aa25c4359262c054ed196f2c4"},
+]
+streamlit-option-menu = [
+    {file = "streamlit-option-menu-0.3.2.tar.gz", hash = "sha256:69d1aef6f30f83f29eda3dc9667733bc2e28cd640eb17b4b6ca315f633484c52"},
+    {file = "streamlit_option_menu-0.3.2-py3-none-any.whl", hash = "sha256:0b7eae3ffdb0276c81d15750465c72957d57d2f766cb027c586d053519731178"},
 ]
 terminado = [
     {file = "terminado-0.13.3-py3-none-any.whl", hash = "sha256:874d4ea3183536c1782d13c7c91342ef0cf4e5ee1d53633029cbc972c8760bd8"},

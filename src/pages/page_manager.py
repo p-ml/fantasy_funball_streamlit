@@ -1,6 +1,7 @@
 from typing import Callable
 
 import streamlit as st
+from streamlit_option_menu import option_menu
 
 
 class MultiPage:
@@ -12,9 +13,23 @@ class MultiPage:
 
     def run(self) -> None:
         # Dropdown to select the page to run
-        page = st.sidebar.selectbox(
-            "App Navigation", self.pages, format_func=lambda page: page["title"]
-        )
+        with st.sidebar:
+            selected = option_menu(
+                "Navigation",
+                [page["title"] for page in self.pages],
+                menu_icon="list",
+                icons=[
+                    "arrow-down-up",
+                    "book-half",
+                    "grid",
+                    "calendar3",
+                    "people",
+                ],
+                default_index=1,
+            )
 
-        # run the app function
-        page["function"]()
+        selected_page = next(
+            page["function"] for page in self.pages
+            if page["title"] == selected
+        )
+        selected_page()
