@@ -43,11 +43,14 @@ def determine_gameweek_no(all_gameweek_data: List) -> int:
 
 def get_gameweek_deadline(gameweek_no: int, gameweek_data: List) -> str:
     """Gets the deadline for a specific gameweek"""
-    gameweek_deadline_utc = next(
-        gameweek["deadline"]
-        for gameweek in gameweek_data
-        if gameweek["gameweek_no"] == gameweek_no
-    )
+    try:
+        gameweek_deadline_utc = next(
+            gameweek["deadline"]
+            for gameweek in gameweek_data
+            if gameweek["gameweek_no"] == gameweek_no
+        )
+    except StopIteration:
+        return "Season finished."
 
     # Convert deadline from UTC to BST
     gameweek_deadline_datetime = datetime.strptime(

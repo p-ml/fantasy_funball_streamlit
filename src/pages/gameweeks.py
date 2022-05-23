@@ -49,6 +49,10 @@ def gameweeks_app():
         all_gameweek_data=all_gameweek_data,
     )
 
+    # Revert back to gameweek 38 if season is over (indicated by gameweek 39).
+    if default_gameweek_no == 39:
+        default_gameweek_no -= 1
+
     gameweek_no = _display_gameweek_select_box(default_gameweek_no=default_gameweek_no)
 
     try:
@@ -57,15 +61,19 @@ def gameweeks_app():
             gameweek_data=all_gameweek_data,
         )
 
-        single_gameweek_data = funball_interface.get_single_gameweek_data(
-            gameweek_no=gameweek_no,
-        )
-        _display_gameweek_data(
-            gameweek_data=single_gameweek_data,
-            gameweek_no=gameweek_no,
-        )
+        if gameweek_deadline == "Season finished.":
+            st.markdown(f"**Season finished.**")
 
-        st.markdown(f"**Gameweek {gameweek_no} Deadline:** {gameweek_deadline}")
+        else:
+            single_gameweek_data = funball_interface.get_single_gameweek_data(
+                gameweek_no=gameweek_no,
+            )
+            _display_gameweek_data(
+                gameweek_data=single_gameweek_data,
+                gameweek_no=gameweek_no,
+            )
+
+            st.markdown(f"**Gameweek {gameweek_no} Deadline:** {gameweek_deadline}")
 
     except (JSONDecodeError, TypeError):
         st.error("Please enter a gameweek number, valid range: 1-38")
