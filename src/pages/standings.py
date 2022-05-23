@@ -58,10 +58,14 @@ def _display_gameweek_info() -> None:
         gameweek_data=gameweek_data,
     )
 
-    st.markdown(
-        f"**Current Gameweek:** {gameweek_no}  \n"
-        f"**Gameweek {gameweek_no} Deadline:** {gameweek_deadline}"
-    )
+    if gameweek_no > 38:
+        st.markdown(f"**Season finished.**")
+    else:
+        st.markdown(
+            f"**Current Gameweek:** {gameweek_no}  \n"
+            f"**Gameweek {gameweek_no} Deadline:** {gameweek_deadline}"
+        )
+
     divider()
 
 
