@@ -43,6 +43,10 @@ def determine_gameweek_no(all_gameweek_data: List) -> int:
 
 def get_gameweek_deadline(gameweek_no: int, gameweek_data: List) -> str:
     """Gets the deadline for a specific gameweek"""
+    # Season not started yet
+    if gameweek_no == 0:
+        gameweek_no += 1
+
     try:
         gameweek_deadline_utc = next(
             gameweek["deadline"]
@@ -105,6 +109,9 @@ def determine_default_gameweek_no(all_gameweek_data: List) -> int:
     gameweek if the current gameweek deadline has passed.
     """
     gameweek_no_limit = determine_gameweek_no(all_gameweek_data=all_gameweek_data)
+
+    if gameweek_no_limit == 0:
+        gameweek_no_limit += 1
 
     current_gameweek_deadline_passed = has_current_gameweek_deadline_passed(
         gameweek_no=gameweek_no_limit,

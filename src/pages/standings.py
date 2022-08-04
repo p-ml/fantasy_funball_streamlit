@@ -46,7 +46,6 @@ def _display_gameweek_info() -> None:
     gameweek_data = FUNBALL_INTERFACE.get_all_gameweek_data()
     gameweek_no = determine_gameweek_no(all_gameweek_data=gameweek_data)
 
-    # Season not started yet
     if gameweek_no == 0:
         gameweek_no += 1
 
