@@ -40,11 +40,15 @@ def _create_standings_dataframe(funballer_data: Dict) -> pd.DataFrame:
 
 def _display_gameweek_info() -> None:
     """
-    Determine gameweek no - if deadline has passed, show info
+    Determine gameweek no. - if deadline has passed, show info
     for next gameweek
     """
     gameweek_data = FUNBALL_INTERFACE.get_all_gameweek_data()
     gameweek_no = determine_gameweek_no(all_gameweek_data=gameweek_data)
+
+    # Season not started yet
+    if gameweek_no == 0:
+        gameweek_no += 1
 
     gameweek_deadline_passed = has_current_gameweek_deadline_passed(
         gameweek_no=gameweek_no,
