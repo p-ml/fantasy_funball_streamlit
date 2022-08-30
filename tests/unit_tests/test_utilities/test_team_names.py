@@ -19,7 +19,7 @@ def test_get_team_names():
         "Man City",
         "Man Utd",
         "Newcastle",
-        "Nottingham Forest",
+        "Nott'm Forest",
         "Southampton",
         "Spurs",
         "West Ham",
