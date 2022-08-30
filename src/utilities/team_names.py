@@ -19,7 +19,7 @@ def get_team_names() -> tuple:
         "Man City",
         "Man Utd",
         "Newcastle",
-        "Nottingham Forest",
+        "Nott'm Forest",
         "Southampton",
         "Spurs",
         "West Ham",
