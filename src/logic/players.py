@@ -3,11 +3,11 @@ from typing import Dict
 import pandas as pd
 import streamlit as st
 
-from src.interface import FunballInterface
-from src.utilities import SortedPlayerData, get_team_names
+from utilities.models import SortedPlayerData
+from utilities.team_names import get_team_names
 
 
-def _display_retrieve_players_form() -> str:
+def display_retrieve_players_form() -> str:
     """Display the retrieve players form, returns the name of the requested team name"""
     retrieve_players_form = st.form(key="retrieve_team_players")
     team_name = retrieve_players_form.selectbox(
@@ -18,7 +18,7 @@ def _display_retrieve_players_form() -> str:
     return team_name
 
 
-def _sort_player_data(player_data: Dict) -> SortedPlayerData:
+def sort_player_data(player_data: Dict) -> SortedPlayerData:
     """Sort player data by goals scored"""
     player_data = zip(
         player_data["goals"], player_data["assists"], player_data["player_names"]
@@ -36,7 +36,7 @@ def _sort_player_data(player_data: Dict) -> SortedPlayerData:
     return sorted_player_data
 
 
-def _display_player_data(team_name: str, player_data: SortedPlayerData) -> None:
+def display_player_data(team_name: str, player_data: SortedPlayerData) -> None:
     """Constructs a pandas dataframe and displays it"""
     st.write(f"{team_name} Players:")
     st.write(
@@ -48,16 +48,3 @@ def _display_player_data(team_name: str, player_data: SortedPlayerData) -> None:
             }
         )
     )
-
-
-def players_app():
-    st.subheader("Players")
-
-    team_name = _display_retrieve_players_form()
-
-    funball_interface = FunballInterface()
-    player_data = funball_interface.get_all_players_from_team(team_name=team_name)
-
-    sorted_player_data = _sort_player_data(player_data=player_data)
-
-    _display_player_data(team_name=team_name, player_data=sorted_player_data)

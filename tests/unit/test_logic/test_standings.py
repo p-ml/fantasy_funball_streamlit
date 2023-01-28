@@ -1,9 +1,7 @@
 import pandas as pd
 from pandas._testing import assert_frame_equal
 
-from src.pages.standings import _create_standings_dataframe
-
-STANDINGS_PAGE_PATH = "src.pages.standings"
+from logic.standings import create_standings_dataframe
 
 
 def test__create_standings_dataframe():
@@ -14,7 +12,7 @@ def test__create_standings_dataframe():
         "funballer_points": [3, 30],
     }
 
-    output = _create_standings_dataframe(
+    output = create_standings_dataframe(
         funballer_data=dummy_funballer_data,
     )
 

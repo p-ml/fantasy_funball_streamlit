@@ -3,10 +3,10 @@ from typing import Dict
 import pandas as pd
 import streamlit as st
 
-from src.interface import FunballInterface
-from src.utilities import (
+from interface.fantasy_funball import FunballInterface
+from utilities.formatting import divider
+from utilities.gameweek import (
     determine_gameweek_no,
-    divider,
     get_gameweek_deadline,
     has_current_gameweek_deadline_passed,
 )
@@ -14,7 +14,7 @@ from src.utilities import (
 FUNBALL_INTERFACE = FunballInterface()
 
 
-def _display_gameweek_summary() -> None:
+def display_gameweek_summary() -> None:
     """Displays gameweek summary section"""
     st.subheader("Weekly Summary")
 
@@ -24,7 +24,7 @@ def _display_gameweek_summary() -> None:
     divider()
 
 
-def _create_standings_dataframe(funballer_data: Dict) -> pd.DataFrame:
+def create_standings_dataframe(funballer_data: Dict) -> pd.DataFrame:
     """Creates standings dataframe"""
     standings_dataframe = pd.DataFrame(
         {
@@ -38,7 +38,7 @@ def _create_standings_dataframe(funballer_data: Dict) -> pd.DataFrame:
     return standings_dataframe
 
 
-def _display_gameweek_info() -> None:
+def display_gameweek_info() -> None:
     """
     Determine gameweek no. - if deadline has passed, show info
     for next gameweek
@@ -72,7 +72,7 @@ def _display_gameweek_info() -> None:
     divider()
 
 
-def _display_standings() -> None:
+def display_standings() -> None:
     """Displays current standings"""
     st.subheader("Standings")
 
@@ -83,7 +83,7 @@ def _display_standings() -> None:
     divider()
 
 
-def _display_update_standings_button() -> None:
+def display_update_standings_button() -> None:
     update_standings_button = st.button(
         label="Update Standings",
         on_click=FUNBALL_INTERFACE.update_standings(),
@@ -91,18 +91,3 @@ def _display_update_standings_button() -> None:
 
     if update_standings_button:
         st.markdown("Standings updated! :white_check_mark:")
-
-
-def standings_app() -> None:
-    """
-    Standings app, also current homepage.
-    Displays info on current gameweek and standings.
-
-    """
-    _display_gameweek_info()
-
-    _display_gameweek_summary()
-
-    _display_standings()
-
-    _display_update_standings_button()

@@ -3,17 +3,7 @@ from typing import List
 import streamlit as st
 from pandas import DataFrame
 
-from src.interface import FunballInterface
-from src.utilities import (
-    ChoicesData,
-    ColourMap,
-    SubmitChoiceData,
-    divider,
-    get_team_names,
-)
-from src.utilities.gameweek import determine_default_gameweek_no
-
-FUNBALL_INTERFACE = FunballInterface()
+from utilities import ChoicesData, ColourMap, SubmitChoiceData, divider, get_team_names
 
 
 class DataframeStyler:
@@ -135,7 +125,7 @@ def remaining_teams_styler(s) -> DataFrame:
     return dataframe
 
 
-def _display_choices_form() -> str:
+def display_choices_form() -> str:
     """
     Display the choices form, allowing user to select who's choices they want to
     see
@@ -164,7 +154,7 @@ def _display_choices_form() -> str:
     return funballer_name
 
 
-def _create_choices_colour_map(choices_data: ChoicesData) -> ColourMap:
+def create_choices_colour_map(choices_data: ChoicesData) -> ColourMap:
     """
     Create dataframe colour map for points awarded for team and player choices.
     """
@@ -203,7 +193,7 @@ def _create_choices_colour_map(choices_data: ChoicesData) -> ColourMap:
     return colour_map
 
 
-def _style_choices_dataframe(
+def style_choices_dataframe(
     choices_dataframe: DataFrame,
     colour_map: ColourMap,
 ) -> DataFrame:
@@ -223,7 +213,7 @@ def _style_choices_dataframe(
     return final_styled_dataframe
 
 
-def _create_choices_dataframe(
+def create_choices_dataframe(
     funballer_name: str,
     choices_data: ChoicesData,
 ) -> DataFrame:
@@ -250,13 +240,13 @@ def _create_choices_dataframe(
     return styled_choices_dataframe
 
 
-def _display_choices_dataframe(choices_dataframe: DataFrame) -> None:
+def display_choices_dataframe(choices_dataframe: DataFrame) -> None:
     """Display choices dataframe"""
     st.dataframe(choices_dataframe)
     divider()
 
 
-def _create_submit_choices_form(default_gameweek_no: int) -> SubmitChoiceData:
+def create_submit_choices_form(default_gameweek_no: int) -> SubmitChoiceData:
     st.subheader("Submit Choices")
 
     player_data = FUNBALL_INTERFACE.get_all_player_data()
@@ -292,7 +282,7 @@ def _create_submit_choices_form(default_gameweek_no: int) -> SubmitChoiceData:
         return submit_choice_data
 
 
-def _display_funballers_remaining_picks(funballer_name: str) -> None:
+def display_funballers_remaining_picks(funballer_name: str) -> None:
     """Display the remaining available team picks for the requested funballer"""
     st.subheader(f"Remaining Team Picks for {funballer_name}")
 
@@ -311,36 +301,3 @@ def _display_funballers_remaining_picks(funballer_name: str) -> None:
         axis=None,
     )
     st.dataframe(styled_remaining_teams_dataframe)
-
-
-def choices_app():
-    st.subheader("View Choices")
-
-    funballer_name = _display_choices_form()
-
-    all_gameweek_data = FUNBALL_INTERFACE.get_all_gameweek_data()
-
-    gameweek_no_limit = determine_default_gameweek_no(
-        all_gameweek_data=all_gameweek_data,
-    )
-
-    choices_data = FUNBALL_INTERFACE.get_choices_data(
-        funballer_name=funballer_name,
-        gameweek_no_limit=gameweek_no_limit,
-    )
-
-    choices_dataframe = _create_choices_dataframe(
-        funballer_name=funballer_name,
-        choices_data=choices_data,
-    )
-
-    _display_choices_dataframe(choices_dataframe=choices_dataframe)
-
-    submit_choice_data = _create_submit_choices_form(
-        default_gameweek_no=gameweek_no_limit,
-    )
-
-    if submit_choice_data.submit:
-        FUNBALL_INTERFACE.post_choice(payload=submit_choice_data)
-
-    _display_funballers_remaining_picks(funballer_name=funballer_name)
