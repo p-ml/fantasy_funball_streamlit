@@ -136,7 +136,7 @@ def display_choices_form() -> str:
             cols[0]
             .text_input(
                 label="Funballer Name:",
-                value=st.session_state["autheticated_user"].title(),
+                value="Patrick",
             )
             .capitalize()
         )
