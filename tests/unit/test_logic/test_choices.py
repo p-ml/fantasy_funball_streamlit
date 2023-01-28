@@ -1,7 +1,7 @@
-from logic.choices import ChoicesData, ColourMap, _create_choices_colour_map
+from logic.choices import ChoicesData, ColourMap, create_choices_colour_map
 
 
-def test__create_choices_colour_map():
+def test_create_choices_colour_map():
     dummy_choices_data = ChoicesData(
         gameweek_no=[1],
         team_choice=["Spurs"],
@@ -15,6 +15,6 @@ def test__create_choices_colour_map():
         player_points=[False],
     )
 
-    output = _create_choices_colour_map(choices_data=dummy_choices_data)
+    output = create_choices_colour_map(choices_data=dummy_choices_data)
 
     assert output == expected_output

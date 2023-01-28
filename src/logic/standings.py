@@ -14,7 +14,7 @@ from utilities.gameweek import (
 FUNBALL_INTERFACE = FunballInterface()
 
 
-def _display_gameweek_summary() -> None:
+def display_gameweek_summary() -> None:
     """Displays gameweek summary section"""
     st.subheader("Weekly Summary")
 
@@ -24,7 +24,7 @@ def _display_gameweek_summary() -> None:
     divider()
 
 
-def _create_standings_dataframe(funballer_data: Dict) -> pd.DataFrame:
+def create_standings_dataframe(funballer_data: Dict) -> pd.DataFrame:
     """Creates standings dataframe"""
     standings_dataframe = pd.DataFrame(
         {
@@ -38,7 +38,7 @@ def _create_standings_dataframe(funballer_data: Dict) -> pd.DataFrame:
     return standings_dataframe
 
 
-def _display_gameweek_info() -> None:
+def display_gameweek_info() -> None:
     """
     Determine gameweek no. - if deadline has passed, show info
     for next gameweek
@@ -72,7 +72,7 @@ def _display_gameweek_info() -> None:
     divider()
 
 
-def _display_standings() -> None:
+def display_standings() -> None:
     """Displays current standings"""
     st.subheader("Standings")
 
@@ -83,7 +83,7 @@ def _display_standings() -> None:
     divider()
 
 
-def _display_update_standings_button() -> None:
+def display_update_standings_button() -> None:
     update_standings_button = st.button(
         label="Update Standings",
         on_click=FUNBALL_INTERFACE.update_standings(),

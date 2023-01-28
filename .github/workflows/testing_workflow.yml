@@ -24,4 +24,4 @@ jobs:
           fi
 
       - name: Unit tests
-        run: poetry run pytest tests/
+        run: poetry run pytest

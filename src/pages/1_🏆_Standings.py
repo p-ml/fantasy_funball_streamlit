@@ -1,10 +1,10 @@
 import streamlit as st
 
 from logic.standings import (
-    _display_gameweek_info,
-    _display_gameweek_summary,
-    _display_standings,
-    _display_update_standings_button,
+    display_gameweek_info,
+    display_gameweek_summary,
+    display_standings,
+    display_update_standings_button,
 )
 
 st.set_page_config(
@@ -20,13 +20,13 @@ def standings_app() -> None:
     Displays info on current gameweek and standings.
 
     """
-    _display_gameweek_info()
+    display_gameweek_info()
 
-    _display_gameweek_summary()
+    display_gameweek_summary()
 
-    _display_standings()
+    display_standings()
 
-    _display_update_standings_button()
+    display_update_standings_button()
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@ from json import JSONDecodeError
 import streamlit as st
 
 from interface import FunballInterface
-from logic.gameweeks import _display_gameweek_select_box
+from logic.gameweeks import display_gameweek_select_box
 from utilities import get_gameweek_deadline
 from utilities.gameweek import determine_default_gameweek_no
 
@@ -28,7 +28,7 @@ def gameweeks_app():
     if default_gameweek_no == 39:
         default_gameweek_no -= 1
 
-    gameweek_no = _display_gameweek_select_box(default_gameweek_no=default_gameweek_no)
+    gameweek_no = display_gameweek_select_box(default_gameweek_no=default_gameweek_no)
 
     try:
         gameweek_deadline = get_gameweek_deadline(
@@ -43,7 +43,7 @@ def gameweeks_app():
             single_gameweek_data = funball_interface.get_single_gameweek_data(
                 gameweek_no=gameweek_no,
             )
-            _display_gameweek_data(
+            display_gameweek_data(
                 gameweek_data=single_gameweek_data,
                 gameweek_no=gameweek_no,
             )

@@ -1,14 +1,14 @@
-from logic.players import SortedPlayerData, _sort_player_data
+from logic.players import SortedPlayerData, sort_player_data
 
 
-def test__sort_player_data():
+def test_sort_player_data():
     mock_player_data = {
         "player_names": ["test player one", "test player two"],
         "goals": [1, 2],
         "assists": [2, 0],
     }
 
-    output = _sort_player_data(player_data=mock_player_data)
+    output = sort_player_data(player_data=mock_player_data)
 
     expected_output = SortedPlayerData(
         goals=[2, 1],

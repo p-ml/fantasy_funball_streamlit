@@ -9,7 +9,7 @@ from utilities import get_gameweek_deadline
 from utilities.gameweek import determine_default_gameweek_no
 
 
-def _display_gameweek_select_box(default_gameweek_no: int) -> int:
+def display_gameweek_select_box(default_gameweek_no: int) -> int:
     """
     Display the gameweek select box, allowing the user to select the desired
     gameweek no.
@@ -21,7 +21,7 @@ def _display_gameweek_select_box(default_gameweek_no: int) -> int:
     return gameweek_no
 
 
-def _display_gameweek_data(
+def display_gameweek_data(
     gameweek_data: Dict,
     gameweek_no: int,
 ) -> None:
