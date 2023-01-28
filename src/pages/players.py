@@ -3,8 +3,14 @@ from typing import Dict
 import pandas as pd
 import streamlit as st
 
-from src.interface import FunballInterface
-from src.utilities import SortedPlayerData, get_team_names
+from interface import FunballInterface
+from utilities import SortedPlayerData, get_team_names
+
+st.set_page_config(
+    page_title="Players",
+    page_icon=":man_running:",
+    initial_sidebar_state="expanded",
+)
 
 
 def _display_retrieve_players_form() -> str:
@@ -61,3 +67,7 @@ def players_app():
     sorted_player_data = _sort_player_data(player_data=player_data)
 
     _display_player_data(team_name=team_name, player_data=sorted_player_data)
+
+
+if __name__ == "__main__":
+    players_app()

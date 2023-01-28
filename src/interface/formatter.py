@@ -3,7 +3,7 @@ from typing import Dict, List
 
 import pytz
 
-from src.utilities import ChoicesData, ValidTeamSelections
+from utilities import ChoicesData, ValidTeamSelections
 
 
 class FunballInterfaceFormatter:

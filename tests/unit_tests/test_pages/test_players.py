@@ -1,4 +1,4 @@
-from src.pages.players import SortedPlayerData, _sort_player_data
+from pages.Players import SortedPlayerData, _sort_player_data
 
 PLAYER_PAGE_PATH = "src.pages.players"
 

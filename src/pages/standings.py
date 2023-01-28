@@ -3,8 +3,8 @@ from typing import Dict
 import pandas as pd
 import streamlit as st
 
-from src.interface import FunballInterface
-from src.utilities import (
+from interface import FunballInterface
+from utilities import (
     determine_gameweek_no,
     divider,
     get_gameweek_deadline,
@@ -12,6 +12,13 @@ from src.utilities import (
 )
 
 FUNBALL_INTERFACE = FunballInterface()
+
+
+st.set_page_config(
+    page_title="Standings",
+    page_icon=":bar_chart:",
+    initial_sidebar_state="expanded",
+)
 
 
 def _display_gameweek_summary() -> None:
@@ -106,3 +113,7 @@ def standings_app() -> None:
     _display_standings()
 
     _display_update_standings_button()
+
+
+if __name__ == "__main__":
+    standings_app()

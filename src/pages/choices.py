@@ -3,17 +3,17 @@ from typing import List
 import streamlit as st
 from pandas import DataFrame
 
-from src.interface import FunballInterface
-from src.utilities import (
-    ChoicesData,
-    ColourMap,
-    SubmitChoiceData,
-    divider,
-    get_team_names,
-)
-from src.utilities.gameweek import determine_default_gameweek_no
+from interface import FunballInterface
+from utilities import ChoicesData, ColourMap, SubmitChoiceData, divider, get_team_names
+from utilities.gameweek import determine_default_gameweek_no
 
 FUNBALL_INTERFACE = FunballInterface()
+
+st.set_page_config(
+    page_title="Choices",
+    page_icon=":soccer:",
+    initial_sidebar_state="expanded",
+)
 
 
 class DataframeStyler:
@@ -146,7 +146,7 @@ def _display_choices_form() -> str:
             cols[0]
             .text_input(
                 label="Funballer Name:",
-                value="Patrick",
+                value=st.session_state["autheticated_user"].title(),
             )
             .capitalize()
         )
@@ -344,3 +344,7 @@ def choices_app():
         FUNBALL_INTERFACE.post_choice(payload=submit_choice_data)
 
     _display_funballers_remaining_picks(funballer_name=funballer_name)
+
+
+if __name__ == "__main__":
+    choices_app()

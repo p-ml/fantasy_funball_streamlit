@@ -1,17 +1,17 @@
-from src.utilities.formatting import divider
-from src.utilities.gameweek import (
+from .formatting import divider
+from .gameweek import (
     determine_gameweek_no,
     get_gameweek_deadline,
     has_current_gameweek_deadline_passed,
 )
-from src.utilities.models import (
+from .models import (
     ChoicesData,
     ColourMap,
     SortedPlayerData,
     SubmitChoiceData,
     ValidTeamSelections,
 )
-from src.utilities.team_names import get_team_names
+from .team_names import get_team_names
 
 __all__ = [
     divider,

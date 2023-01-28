@@ -4,9 +4,15 @@ from typing import Dict
 import pandas as pd
 import streamlit as st
 
-from src.interface import FunballInterface
-from src.utilities import get_gameweek_deadline
-from src.utilities.gameweek import determine_default_gameweek_no
+from interface import FunballInterface
+from utilities import get_gameweek_deadline
+from utilities.gameweek import determine_default_gameweek_no
+
+st.set_page_config(
+    page_title="Gameweeks",
+    page_icon=":calendar:",
+    initial_sidebar_state="expanded",
+)
 
 
 def _display_gameweek_select_box(default_gameweek_no: int) -> int:
@@ -78,3 +84,7 @@ def gameweeks_app():
     except (JSONDecodeError, TypeError):
         st.error("Please enter a gameweek number, valid range: 1-38")
         st.stop()
+
+
+if __name__ == "__main__":
+    gameweeks_app()

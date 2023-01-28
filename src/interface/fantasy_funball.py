@@ -6,8 +6,8 @@ from typing import Dict, List
 import requests
 import streamlit as st
 
-from src.interface.formatter import FunballInterfaceFormatter
-from src.utilities import ChoicesData, SubmitChoiceData, ValidTeamSelections, divider
+from interface.formatter import FunballInterfaceFormatter
+from utilities import ChoicesData, SubmitChoiceData, ValidTeamSelections, divider
 
 
 class FunballInterface:
