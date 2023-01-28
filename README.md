@@ -6,17 +6,17 @@ Simple Streamlit app to act as frontend for Fantasy Funball, hosted on streamlit
 
 ## Project Structure
 - `src/interface`: Handles interactions with the backend _fantasy_funball_ API. 
-- `src/pages`: Home of the Streamlit functions & pages.
+- `src/pages`: Home of the Streamlit pages.
 - `src/utilities`: Utility functions used throughout the application.
+- `src/logic`: Main logic for each of the pages.
 
 
 ## Testing
-`pytest` is used for testing, and can be run with: `pytest tests/`. A GitHub Action
-has been set up to run the tests on every push.
+`pytest` is used for testing. A GitHub Action has been set up to run the tests on every push.
 
 
 ## Deployment
-The app can be run locally with `python -m streamlit fantasy_funball.py`, which will use
+The app can be run locally with `python -m streamlit src/fantasy_funball.py`, which will use
 port 8501 by default.
 
 The app is hosted on Streamlit Sharing, where any push to `master` will be automatically deployed.
