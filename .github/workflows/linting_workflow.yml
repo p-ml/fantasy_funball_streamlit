@@ -1,12 +1,10 @@
-name: Test Fantasy Funball Streamlit
+name: Lint Fantasy Funball Streamlit
 
 on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      FANTASY_FUNBALL_URL: "http://localhost:8080/fantasy_funball/"
 
     steps:
       - uses: actions/checkout@v2
@@ -23,5 +21,8 @@ jobs:
             poetry install;
           fi
 
-      - name: Unit tests
-        run: poetry run pytest tests/
+      - name: Run flake8
+        run: python -m flake8 --benchmark --exit-zero src/
+
+      - name: Run black
+        run: poetry run python -m black --check src/
