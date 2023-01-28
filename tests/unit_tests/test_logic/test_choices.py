@@ -1,6 +1,4 @@
-from pages.Choices import ChoicesData, ColourMap, _create_choices_colour_map
-
-CHOICES_PAGE_PATH = "src.pages.choices"
+from logic.choices import ChoicesData, ColourMap, _create_choices_colour_map
 
 
 def test__create_choices_colour_map():

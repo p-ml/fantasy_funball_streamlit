@@ -1,6 +1,4 @@
-from pages.Players import SortedPlayerData, _sort_player_data
-
-PLAYER_PAGE_PATH = "src.pages.players"
+from logic.players import SortedPlayerData, _sort_player_data
 
 
 def test__sort_player_data():

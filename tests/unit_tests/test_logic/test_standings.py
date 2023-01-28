@@ -1,9 +1,7 @@
 import pandas as pd
 from pandas._testing import assert_frame_equal
 
-from pages.Standings import _create_standings_dataframe
-
-STANDINGS_PAGE_PATH = "src.pages.standings"
+from logic.standings import _create_standings_dataframe
 
 
 def test__create_standings_dataframe():
