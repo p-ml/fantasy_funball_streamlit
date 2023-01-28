@@ -1,4 +1,4 @@
-from src.utilities import get_team_names
+from utilities import get_team_names
 
 
 def test_get_team_names():

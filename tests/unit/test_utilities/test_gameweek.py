@@ -4,15 +4,15 @@ from unittest.mock import patch
 import pytest
 import pytz
 
-from src.utilities import determine_gameweek_no
-from src.utilities.gameweek import (
+from utilities import determine_gameweek_no
+from utilities.gameweek import (
     _localise_datetime,
     determine_default_gameweek_no,
     get_gameweek_deadline,
     has_current_gameweek_deadline_passed,
 )
 
-GAMEWEEK_UTILITIES_PATH = "src.utilities.gameweek"
+GAMEWEEK_UTILITIES_PATH = "utilities.gameweek"
 
 
 @pytest.mark.parametrize(

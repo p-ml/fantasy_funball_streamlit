@@ -3,10 +3,10 @@ from unittest.mock import Mock, patch
 import pytest
 from requests import Response
 
-from src.interface import FunballInterface
-from src.utilities import ChoicesData
+from interface import FunballInterface
+from utilities import ChoicesData
 
-INTERFACE_PATH = "src.interface.fantasy_funball"
+INTERFACE_PATH = "interface.fantasy_funball"
 
 FUNBALL_INTERFACE = FunballInterface()
 
