@@ -3,7 +3,7 @@ from typing import List
 import streamlit as st
 from pandas import DataFrame
 
-from src.interface.fantasy_funball import FunballInterface
+from interface.fantasy_funball import FunballInterface
 from utilities import ChoicesData, ColourMap, SubmitChoiceData, divider, get_team_names
 
 FUNBALL_INTERFACE = FunballInterface()
