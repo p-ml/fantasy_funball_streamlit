@@ -1,7 +1,7 @@
-from src.interface.formatter import FunballInterfaceFormatter
+from interface.formatter import FunballInterfaceFormatter
 
 
-def test__format_kickoffs():
+def test_format_kickoffs():
     formatter = FunballInterfaceFormatter()
     dummy_kickoffs = ["2022-01-01 12:00:00", "2022-02-02 22:00:00"]
     output = formatter._format_kickoffs(kickoffs=dummy_kickoffs)
@@ -11,7 +11,7 @@ def test__format_kickoffs():
     assert output == expected_output
 
 
-def test__format_gameweek_data():
+def test_format_gameweek_data():
     formatter = FunballInterfaceFormatter()
 
     dummy_gameweek_data = [
@@ -43,7 +43,7 @@ def test__format_gameweek_data():
     assert output == expected_output
 
 
-def test__format_funballer_data():
+def test_format_funballer_data():
     formatter = FunballInterfaceFormatter()
 
     dummy_funballer_data = [

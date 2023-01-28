@@ -3,8 +3,7 @@ from json import JSONDecodeError
 import streamlit as st
 
 from interface import FunballInterface
-from logic.gameweeks import display_gameweek_select_box
-from src.logic.gameweeks import display_gameweek_data
+from logic.gameweeks import display_gameweek_data, display_gameweek_select_box
 from utilities import get_gameweek_deadline
 from utilities.gameweek import determine_default_gameweek_no
 
