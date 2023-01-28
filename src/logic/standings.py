@@ -77,7 +77,7 @@ def display_standings() -> None:
     st.subheader("Standings")
 
     funballer_data = FUNBALL_INTERFACE.get_funballer_data()
-    standings_dataframe = _create_standings_dataframe(funballer_data=funballer_data)
+    standings_dataframe = create_standings_dataframe(funballer_data=funballer_data)
 
     st.write(standings_dataframe)
     divider()
