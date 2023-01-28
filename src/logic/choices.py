@@ -3,7 +3,10 @@ from typing import List
 import streamlit as st
 from pandas import DataFrame
 
+from src.interface.fantasy_funball import FunballInterface
 from utilities import ChoicesData, ColourMap, SubmitChoiceData, divider, get_team_names
+
+FUNBALL_INTERFACE = FunballInterface()
 
 
 class DataframeStyler:
@@ -230,9 +233,9 @@ def create_choices_dataframe(
     )
     indexed_choices_dataframe = choices_dataframe.set_index("Gameweek Number", drop=False)
 
-    colour_map = _create_choices_colour_map(choices_data=choices_data)
+    colour_map = create_choices_colour_map(choices_data=choices_data)
 
-    styled_choices_dataframe = _style_choices_dataframe(
+    styled_choices_dataframe = style_choices_dataframe(
         choices_dataframe=indexed_choices_dataframe,
         colour_map=colour_map,
     )
